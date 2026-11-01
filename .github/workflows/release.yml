@@ -35,8 +35,8 @@ jobs:
 
       - name: Prepare Module Files and Package Flashable Zip
         run: |
-          # Read version from module.prop
           PROP_VERSION=$(grep "^version=" zygisk-module/module.prop | cut -d'=' -f2 | tr -d '\r')
+          PROP_CODE=$(grep "^versionCode=" zygisk-module/module.prop | cut -d'=' -f2 | tr -d '\r')
           TAG_NAME="${PROP_VERSION:-v1.0.2}"
           ZIP_NAME="HyperOS-UI-Skipper-${TAG_NAME}.zip"
           echo "Packaging module zip as: $ZIP_NAME"
@@ -67,9 +67,26 @@ jobs:
           zip -r9 "../$ZIP_NAME" ./*
           cd ../..
 
-          # Output filename for release step
+          # Update update.json automatically for KernelSU / Magisk in-app updates
+          cat > update.json <<EOF
+          {
+            "version": "${TAG_NAME}",
+            "versionCode": ${PROP_CODE:-102},
+            "zipUrl": "https://github.com/Hengen42/hyperos-ui-skipper/releases/download/${TAG_NAME}/${ZIP_NAME}",
+            "changelog": "https://raw.githubusercontent.com/Hengen42/hyperos-ui-skipper/main/CHANGELOG.md"
+          }
+          EOF
+
           echo "ZIP_PATH=zygisk-module/$ZIP_NAME" >> $GITHUB_ENV
           echo "TAG_TARGET=$TAG_NAME" >> $GITHUB_ENV
+
+      - name: Update update.json in repository
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add update.json
+          git commit -m "Auto-update update.json for release [skip ci]" || echo "No changes to commit"
+          git push origin main || echo "Push skipped"
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
