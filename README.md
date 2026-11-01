@@ -18,7 +18,7 @@
 
 The following components are **strictly required** for this module to operate:
 - **Root Solution:** [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next), [KernelSU](https://github.com/tiann/KernelSU), [Magisk](https://github.com/topjohnwu/magisk), or [APatch](https://github.com/bmax121/APatch)
-- **Zygisk Implementation:** [NeoZygisk](https://github.com/JingMatrix/NeoZygisk) or [ZygiskNext](https://github.com/Dr-TSNG/ZygiskNext)
+- **Zygisk Implementation:** Built-in Magisk Zygisk, [NeoZygisk](https://github.com/JingMatrix/NeoZygisk), or [ZygiskNext](https://github.com/Dr-TSNG/ZygiskNext)
 - **Xposed Framework:** [Vector](https://github.com/JingMatrix/Vector) or [LSPosed](https://github.com/LSPosed/LSPosed)
 
 ### Tested & Verified Environment (Developer Setup)
@@ -83,7 +83,10 @@ Everything is packaged and delivered through a single flashable `.zip` file:
 
 Users do not need to install any APK manually:
 
-1. Ensure **Vector** or **LSPosed** is installed and active on your rooted device.
+1. **Prerequisites:** Ensure your device has the following active components:
+   - **Root:** [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next), [KernelSU](https://github.com/tiann/KernelSU), [Magisk](https://github.com/topjohnwu/magisk), or [APatch](https://github.com/bmax121/APatch)
+   - **Zygisk:** Built-in Magisk Zygisk, [NeoZygisk](https://github.com/JingMatrix/NeoZygisk), or [ZygiskNext](https://github.com/Dr-TSNG/ZygiskNext)
+   - **Xposed:** [Vector](https://github.com/JingMatrix/Vector) or [LSPosed](https://github.com/LSPosed/LSPosed)
 2. Download the latest **`HyperOS-UI-Skipper-v*.zip`** package from the [Releases](../../releases) tab.
 3. Flash the `.zip` file via **KernelSU**, **APatch**, or **Magisk**.
    > [!NOTE]  

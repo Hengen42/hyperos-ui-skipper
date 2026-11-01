@@ -18,7 +18,7 @@
 
 Bu modülün çalışabilmesi için cihazınızda aşağıdaki bileşenlerin kurulu olması **zorunludur**:
 - **Root Yöneticisi:** [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next), [KernelSU](https://github.com/tiann/KernelSU), [Magisk](https://github.com/topjohnwu/magisk) veya [APatch](https://github.com/bmax121/APatch)
-- **Zygisk Modülü:** [NeoZygisk](https://github.com/JingMatrix/NeoZygisk) veya [ZygiskNext](https://github.com/Dr-TSNG/ZygiskNext)
+- **Zygisk Altyapısı:** Magisk Dahili Zygisk, [NeoZygisk](https://github.com/JingMatrix/NeoZygisk) veya [ZygiskNext](https://github.com/Dr-TSNG/ZygiskNext)
 - **Xposed Çerçevesi:** [Vector](https://github.com/JingMatrix/Vector) veya [LSPosed](https://github.com/LSPosed/LSPosed)
 
 ### Doğrulanan ve Test Edilen Ortam (Geliştirici Kurulumu)
@@ -83,7 +83,10 @@ Proje iki parçadan oluşur; **kullanıcının ekstra bir şey yapmasına gerek 
 
 Kullanıcıların harici bir APK indirmesine veya elle yüklemesine gerek yoktur:
 
-1. Cihazınızda **Vector** veya **LSPosed** çerçevesinin kurulu olduğundan emin olun.
+1. **Ön Hazırlık:** Cihazınızda aşağıdaki bileşenlerin aktif olduğundan emin olun:
+   - **Root:** [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next), [KernelSU](https://github.com/tiann/KernelSU), [Magisk](https://github.com/topjohnwu/magisk) veya [APatch](https://github.com/bmax121/APatch)
+   - **Zygisk:** Magisk Dahili Zygisk, [NeoZygisk](https://github.com/JingMatrix/NeoZygisk) veya [ZygiskNext](https://github.com/Dr-TSNG/ZygiskNext)
+   - **Xposed:** [Vector](https://github.com/JingMatrix/Vector) veya [LSPosed](https://github.com/LSPosed/LSPosed)
 2. [Releases](../../releases) bölümünden en güncel **`HyperOS-UI-Skipper-v*.zip`** dosyasını indirin.
 3. Modülü **KernelSU**, **APatch** veya **Magisk** üzerinden flaşlayın.
    > [!NOTE]  
