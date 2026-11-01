@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-HyperOS%201%20%7C%202%20%7C%203%20%7C%20MIUI-blue.svg)
-![Version](https://img.shields.io/badge/Version-v1.0.1-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-v1.0.2-brightgreen.svg)
 ![Root](https://img.shields.io/badge/Root-KernelSU%20%7C%20KernelSU--Next%20%7C%20APatch%20%7C%20Magisk-orange.svg)
 ![Hook](https://img.shields.io/badge/Hook-Vector%20%7C%20LSPosed%20(Xposed%20API%2093%2B)-informational.svg)
 
@@ -14,7 +14,23 @@
 
 ---
 
-## 1. Overview & Problem Statement
+## 1. Requirements & Prerequisites
+
+The following components are **strictly required** for this module to operate:
+- **Root Solution:** [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next), [KernelSU](https://github.com/tiann/KernelSU), [Magisk](https://github.com/topjohnwu/magisk), or [APatch](https://github.com/bmax121/APatch)
+- **Zygisk Implementation:** [NeoZygisk](https://github.com/JingMatrix/NeoZygisk) or [ZygiskNext](https://github.com/Dr-TSNG/ZygiskNext)
+- **Xposed Framework:** [Vector](https://github.com/JingMatrix/Vector) or [LSPosed](https://github.com/LSPosed/LSPosed)
+
+### Tested & Verified Environment (Developer Setup)
+Tested and verified to be 100% working on the developer's primary device:
+- **Device & ROM:** Xiaomi 14T Pro (`rothko`) — HyperOS 3.0 (Android 16)
+- **Root Solution:** [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next)
+- **Zygisk:** [NeoZygisk](https://github.com/JingMatrix/NeoZygisk)
+- **Hook Framework:** [Vector](https://github.com/JingMatrix/Vector)
+
+---
+
+## 2. Overview & Problem Statement
 
 On Xiaomi's **HyperOS** and **MIUI** (`com.miui.securitycenter`), modifying developer or sensitive accessibility settings triggers an unavoidable full-screen warning with a 5 or 10-second artificial countdown timer (**see `dangers.jpeg`**).
 

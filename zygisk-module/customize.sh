@@ -4,7 +4,7 @@
 # configuring everything automatically during flash.
 
 ui_print "****************************************"
-ui_print "        HyperOS UI Skipper v1.0.1       "
+ui_print "        HyperOS UI Skipper v1.0.2       "
 ui_print "               by Hengen                "
 ui_print "****************************************"
 

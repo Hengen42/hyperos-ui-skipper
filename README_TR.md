@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-HyperOS%201%20%7C%202%20%7C%203%20%7C%20MIUI-blue.svg)
-![Version](https://img.shields.io/badge/Version-v1.0.1-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-v1.0.2-brightgreen.svg)
 ![Root](https://img.shields.io/badge/Root-KernelSU%20%7C%20KernelSU--Next%20%7C%20APatch%20%7C%20Magisk-orange.svg)
 ![Hook](https://img.shields.io/badge/Hook-Vector%20%7C%20LSPosed%20(Xposed%20API%2093%2B)-informational.svg)
 
@@ -14,7 +14,23 @@
 
 ---
 
-## 1. Proje Amacı ve Problem Tanımı
+## 1. Gereksinimler (Gerekli Uygulamalar)
+
+Bu modülün çalışabilmesi için cihazınızda aşağıdaki bileşenlerin kurulu olması **zorunludur**:
+- **Root Yöneticisi:** [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next), [KernelSU](https://github.com/tiann/KernelSU), [Magisk](https://github.com/topjohnwu/magisk) veya [APatch](https://github.com/bmax121/APatch)
+- **Zygisk Modülü:** [NeoZygisk](https://github.com/JingMatrix/NeoZygisk) veya [ZygiskNext](https://github.com/Dr-TSNG/ZygiskNext)
+- **Xposed Çerçevesi:** [Vector](https://github.com/JingMatrix/Vector) veya [LSPosed](https://github.com/LSPosed/LSPosed)
+
+### Doğrulanan ve Test Edilen Ortam (Geliştirici Kurulumu)
+Geliştirici tarafından bizzat test edilip %100 çalıştığı doğrulanan cihaz yapılandırması:
+- **Cihaz & ROM:** Xiaomi 14T Pro (`rothko`) — HyperOS 3.0 (Android 16)
+- **Root Yöneticisi:** [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next)
+- **Zygisk:** [NeoZygisk](https://github.com/JingMatrix/NeoZygisk)
+- **Kanca Çerçevesi:** [Vector](https://github.com/JingMatrix/Vector)
+
+---
+
+## 2. Proje Amacı ve Problem Tanımı
 
 Xiaomi'nin **HyperOS** ve **MIUI** arayüzünde (`com.miui.securitycenter`), kullanıcının kendi isteğiyle açmak istediği birçok standart geliştirici ve sistem ayarında tam ekran, 10 saniye geri sayımlı bir uyarı ekranı (**bkz. `dangers.jpeg`**) çıkar.
 
