@@ -2,10 +2,10 @@ name: Build & Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
-  release:
-    types: [published]
   workflow_dispatch:
 
 jobs:
@@ -35,8 +35,7 @@ jobs:
 
       - name: Prepare Module Files and Package Flashable Zip
         run: |
-          TAG_NAME="${GITHUB_REF#refs/tags/}"
-          echo "Building for reference: $TAG_NAME"
+          echo "Packaging module zip..."
 
           # Locate built APK
           APK_SRC=$(find xposed-module/build/outputs/apk/release -name "*.apk" | head -n 1)
@@ -66,7 +65,7 @@ jobs:
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'release'
         with:
+          tag_name: v1.0.1
           files: |
             zygisk-module/HyperOS-UI-Skipper.zip
