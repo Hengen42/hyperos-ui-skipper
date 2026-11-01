@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HyperOS UI Skipper</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #111317;
+    --card: #1b1e24;
+    --text: #f1f2f4;
+    --muted: #9aa0a8;
+    --accent: #6fb7ff;
+    --danger: #ff6b6b;
+    --warning: #f5a623;
+    --success: #52d68a;
+    --border: #2b2f37;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 16px 16px 48px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, Roboto, "Segoe UI", sans-serif;
+  }
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 4px 0 2px;
+  }
+  h1 { font-size: 20px; margin: 0; font-weight: 700; }
+  .lang-select {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+  }
+  h2 { font-size: 15px; margin: 0 0 10px; color: var(--muted); font-weight: 600; }
+  .subtitle { color: var(--muted); font-size: 13px; margin: 6px 0 18px; line-height: 1.5; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .option {
+    display: block;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  .option:last-of-type { margin-bottom: 0; }
+  .option.selected {
+    border-color: var(--accent);
+    background: rgba(111, 183, 255, 0.06);
+  }
+  .option label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; width: 100%; }
+  .option input[type=radio] { margin-top: 3px; flex: 0 0 auto; accent-color: var(--accent); }
+  .option-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .option .title { font-weight: 600; font-size: 14.5px; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .badge.rec { background: rgba(82, 214, 138, 0.15); color: var(--success); }
+  .badge.warn { background: rgba(245, 166, 35, 0.15); color: var(--warning); }
+  .hint { color: var(--muted); font-size: 12.5px; margin: 6px 0 0 28px; line-height: 1.45; }
+  .consent {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin: 10px 0 0 28px;
+    padding: 10px 12px;
+    background: rgba(255, 107, 107, 0.08);
+    border: 1px solid var(--danger);
+    border-radius: 10px;
+    font-size: 12.5px;
+    color: var(--danger);
+    cursor: pointer;
+  }
+  .consent input { margin-top: 2px; }
+  button {
+    appearance: none;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: opacity 0.2s, background-color 0.2s, transform 0.1s;
+  }
+  button:active { transform: scale(0.99); }
+  button:disabled, button.is-loading {
+    opacity: 0.45 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    filter: grayscale(40%);
+  }
+  #restart { background: transparent; color: var(--text); border: 1px solid var(--border); margin-top: 14px; }
+  #info { font-size: 12.5px; color: var(--muted); line-height: 1.6; word-break: break-all; margin-top: 10px; }
+  #uninstall { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+  #refresh { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  
+  /* Green highlight for actionable setup buttons */
+  #activate, #reinstall {
+    background: var(--success);
+    color: #071e11;
+    border: none;
+    font-weight: 700;
+  }
+
+  .banner { font-weight: 600; font-size: 13.5px; padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; background: rgba(154,160,168,0.12); }
+  .banner.ok { background: rgba(82,214,138,0.15); color: var(--success); }
+  .banner.bad { background: rgba(255,107,107,0.15); color: var(--danger); }
+  .checks { list-style: none; margin: 0 0 10px; padding: 0; font-size: 13.5px; }
+  .checks li { padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+  .checks li:last-child { border-bottom: none; }
+  .checks .ico { flex: 0 0 auto; font-size: 14px; }
+  .checks small { color: var(--muted); display: block; font-size: 12px; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <div class="header-row">
+    <h1>HyperOS UI Skipper</h1>
+    <select id="langSelect" class="lang-select">
+      <option value="en">English</option>
+      <option value="tr">Türkçe</option>
+    </select>
+  </div>
+  <div class="subtitle" id="t_subtitle">Instantly eliminates the artificial 10-second countdown on Xiaomi HyperOS & MIUI security warning screens. Tapping an option below applies the change immediately.</div>
+
+  <div class="card">
+    <h2 id="t_select_mode">Operating Behavior</h2>
+
+    <div class="option" id="opt_mode1">
+      <label>
+        <input type="radio" name="mode" value="1">
+        <div>
+          <div class="option-header">
+            <span class="title" id="t_mode1_title">Skip Countdown Only</span>
+            <span class="badge rec" id="t_badge_rec">Recommended</span>
+          </div>
+          <div class="hint" id="t_mode1_hint">The 10-second wait ends instantly. You still review the risks, check the confirmation box, and tap OK yourself.</div>
+        </div>
+      </label>
+    </div>
+
+    <div class="option" id="opt_mode2">
+      <label>
+        <input type="radio" name="mode" value="2">
+        <div>
+          <div class="option-header">
+            <span class="title" id="t_mode2_title">Full Automatic</span>
+            <span class="badge warn" id="t_badge_warn">Instant</span>
+          </div>
+          <div class="hint" id="t_mode2_hint">Countdown is eliminated, the risk checkbox is ticked automatically, and OK is pressed instantly. Skips the warning dialog completely.</div>
+        </div>
+      </label>
+      <label class="consent" id="consentRow" style="display:none">
+        <input type="checkbox" id="consent">
+        <span id="t_consent_text">I understand the risks and intentionally enable full automatic confirmation.</span>
+      </label>
+    </div>
+
+    <button id="restart">Restart Security Center (com.miui.securitycenter)</button>
+  </div>
+
+  <div class="card">
+    <h2 id="t_status_title">System Health & Status</h2>
+    <div id="banner" class="banner">Loading...</div>
+    <ul id="checks" class="checks"></ul>
+    <div id="info"></div>
+    <button id="activate" style="display:none">Activate in Framework</button>
+    <button id="reinstall" style="display:none">Install Hook APK</button>
+    <button id="refresh">Refresh Status</button>
+    <button id="uninstall">Uninstall Hook APK & Module</button>
+  </div>
+
+<script>
+  var I18N = {
+    en: {
+      subtitle: 'Instantly eliminates the artificial 10-second countdown on Xiaomi HyperOS & MIUI security warning screens. Tapping an option below applies the change immediately.',
+      select_mode: 'Operating Behavior',
+      mode1_title: 'Skip Countdown Only',
+      badge_rec: 'Recommended',
+      mode1_hint: 'The 10-second wait ends instantly. You still review the risks, check the confirmation box, and tap OK yourself.',
+      mode2_title: 'Full Automatic',
+      badge_warn: 'Instant',
+      mode2_hint: 'Countdown is eliminated, the risk checkbox is ticked automatically, and OK is pressed instantly. Skips the warning dialog completely.',
+      consent_text: 'I understand the risks and intentionally enable full automatic confirmation.',
+      consent_required: 'Please check the risk agreement box to activate Full Automatic mode.',
+      restart_btn: 'Restart Security Center (com.miui.securitycenter)',
+      status_title: 'System Health & Status',
+      checking_status: 'Checking framework status...',
+      ok: 'Hook is active and operating normally',
+      no_vector: 'Xposed framework (Vector / LSPosed) is not active — install and enable it',
+      no_daemon: 'Framework background daemon is not running — please reboot',
+      no_apk: 'Hook APK is not installed — click below to install',
+      not_enabled: 'Module needs approval in Vector/LSPosed — enable it and reboot',
+      no_scope: 'Scope missing — com.miui.securitycenter must be selected in framework',
+      saved_toast: 'Applied: {mode}. Security Center (com.miui.securitycenter) restarted.',
+      restarted_toast: 'Security Center (com.miui.securitycenter) restarted',
+      module_setting: 'Configuration Module',
+      active: 'Active',
+      disabled: 'Disabled',
+      framework: 'Xposed Framework ({name})',
+      installed: 'Installed',
+      not_installed: 'Not installed / Disabled',
+      daemon_running: 'Daemon active',
+      daemon_stopped: 'Daemon not running',
+      apk_name: 'Hook APK (dev.hengen.uiskipper)',
+      framework_enabled: 'Framework Activation',
+      framework_enabled_hint: 'Enable in framework manager and reboot',
+      scope_item: 'Target Scope: com.miui.securitycenter',
+      scope_hint: 'Add to target scope in framework manager',
+      hook_loaded: 'Hook Injected (com.miui.securitycenter)',
+      hook_pending: 'Pending (will confirm once com.miui.securitycenter opens)',
+      active_mode: 'Active Behavior: ',
+      btn_activate: 'Activate in Framework',
+      btn_activating: 'Activating...',
+      btn_reinstall: 'Install Hook APK',
+      btn_installing: 'Installing APK...',
+      btn_refresh: 'Refresh Status',
+      btn_refreshing: 'Checking...',
+      btn_restarting: 'Restarting...',
+      btn_uninstall: 'Uninstall Hook APK & Module',
+      uninstall_confirm: 'Uninstall the hook APK and remove this module completely?',
+      uninstall_toast: 'Uninstalled. Please reboot to finish removal.',
+      activate_success: 'Activated in framework successfully',
+      activate_failed: 'Activation failed: ',
+      apk_installed: 'Hook APK installed; please enable it in your framework',
+      apk_failed: 'Installation failed: '
+    },
+    tr: {
+      subtitle: 'Xiaomi HyperOS ve MIUI güvenlik ekranlarındaki 10 saniyelik yapay bekleme sürelerini anında kaldırır. İstediğiniz seçeneğe dokunduğunuzda ayar anında uygulanır.',
+      select_mode: 'Çalışma Şekli',
+      mode1_title: 'Sadece Sayacı Atla',
+      badge_rec: 'Önerilen',
+      mode1_hint: '10 saniyelik yapay bekleme anında biter. Riskleri okuyup onay kutusunu işaretlemek ve "Tamam"a basmak sizin kontrolünüzde kalır.',
+      mode2_title: 'Tam Otomatik Onayla',
+      badge_warn: 'Anında Geçiş',
+      mode2_hint: 'Bekleme sayacını atlar, onay kutusunu otomatik işaretler ve "Tamam" butonuna anında basar. Onay ekranı hiç görünmeden doğrudan geçilir.',
+      consent_text: 'Olası risklerin farkındayım, tam otomatik modu bilerek etkinleştiriyorum.',
+      consent_required: 'Tam Otomatik modu aktif etmek için lütfen risk onay kutucuğunu işaretleyin.',
+      restart_btn: 'Güvenlik Merkezini Yeniden Başlat (com.miui.securitycenter)',
+      status_title: 'Sistem Durumu ve Tanılama',
+      checking_status: 'Çerçeve durumu denetleniyor...',
+      ok: 'Kanca başarıyla devrede ve çalışıyor',
+      no_vector: 'Xposed çerçevesi (Vector / LSPosed) aktif değil — kurup etkinleştirin',
+      no_daemon: 'Çerçeve arka plan servisi çalışmıyor — cihazı yeniden başlatın',
+      no_apk: 'Kanca APK\'sı kurulu değil — aşağıdaki butondan kurun',
+      not_enabled: 'Modül çerçevede onay bekliyor — etkinleştirip yeniden başlatın',
+      no_scope: 'Kapsam eksik — çerçevede com.miui.securitycenter seçilmeli',
+      saved_toast: 'Uygulandı: {mode}. Güvenlik Merkezi (com.miui.securitycenter) yeniden başlatıldı.',
+      restarted_toast: 'Güvenlik Merkezi (com.miui.securitycenter) yeniden başlatıldı',
+      module_setting: 'Ayar Modülü',
+      active: 'Aktif',
+      disabled: 'Devre Dışı',
+      framework: 'Xposed Çerçevesi ({name})',
+      installed: 'Kurulu',
+      not_installed: 'Kurulu veya aktif değil',
+      daemon_running: 'Servis çalışıyor',
+      daemon_stopped: 'Servis çalışmıyor',
+      apk_name: 'Kanca APK\'sı (dev.hengen.uiskipper)',
+      framework_enabled: 'Çerçevede Etkinleştirme',
+      framework_enabled_hint: 'Modüller listesinden etkinleştirip yeniden başlatın',
+      scope_item: 'Hedef Kapsam: com.miui.securitycenter',
+      scope_hint: 'Çerçeve ayarlarından kapsama ekleyin',
+      hook_loaded: 'Kanca Enjekte Edildi (com.miui.securitycenter)',
+      hook_pending: 'Doğrulama bekleniyor (com.miui.securitycenter açılınca onaylanır)',
+      active_mode: 'Aktif Seçenek: ',
+      btn_activate: 'Çerçevede Etkinleştir',
+      btn_activating: 'Etkinleştiriliyor...',
+      btn_reinstall: 'Kanca APK\'sını Kur',
+      btn_installing: 'APK Kuruluyor...',
+      btn_refresh: 'Durumu Yenile',
+      btn_refreshing: 'Denetleniyor...',
+      btn_restarting: 'Yeniden Başlatılıyor...',
+      btn_uninstall: 'Kanca APK\'sını ve Modülü Kaldır',
+      uninstall_confirm: 'Kanca APK\'sı ve modül tamamen kaldırılsın mı?',
+      uninstall_toast: 'Kaldırıldı. Temizliğin tamamlanması için cihazı yeniden başlatın.',
+      activate_success: 'Çerçevede başarıyla etkinleştirildi',
+      activate_failed: 'Etkinleştirilemedi: ',
+      apk_installed: 'Kanca APK\'sı kuruldu; lütfen çerçevede etkinleştirin',
+      apk_failed: 'Kurulum başarısız: '
+    }
+  };
+
+  function detectLanguage() {
+    var stored = localStorage.getItem('ui_lang');
+    if (stored === 'tr' || stored === 'en') return stored;
+    var nav = (navigator.language || navigator.userLanguage || '').toLowerCase();
+    return nav.indexOf('tr') === 0 ? 'tr' : 'en';
+  }
+
+  var currentLang = detectLanguage();
+
+  function t(key, vars) {
+    var str = (I18N[currentLang] && I18N[currentLang][key]) || I18N['en'][key] || key;
+    if (vars) {
+      for (var k in vars) {
+        str = str.replace('{' + k + '}', vars[k]);
+      }
+    }
+    return str;
+  }
+
+  function applyLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('ui_lang', lang);
+    document.documentElement.lang = lang;
+    document.getElementById('langSelect').value = lang;
+
+    document.getElementById('t_subtitle').innerHTML = t('subtitle');
+    document.getElementById('t_select_mode').textContent = t('select_mode');
+    document.getElementById('t_mode1_title').textContent = t('mode1_title');
+    document.getElementById('t_badge_rec').textContent = t('badge_rec');
+    document.getElementById('t_mode1_hint').textContent = t('mode1_hint');
+    document.getElementById('t_mode2_title').textContent = t('mode2_title');
+    document.getElementById('t_badge_warn').textContent = t('badge_warn');
+    document.getElementById('t_mode2_hint').textContent = t('mode2_hint');
+    document.getElementById('t_consent_text').textContent = t('consent_text');
+    document.getElementById('restart').textContent = t('restart_btn');
+    document.getElementById('t_status_title').textContent = t('status_title');
+    document.getElementById('activate').textContent = t('btn_activate');
+    document.getElementById('reinstall').textContent = t('btn_reinstall');
+    document.getElementById('refresh').textContent = t('btn_refresh');
+    document.getElementById('uninstall').textContent = t('btn_uninstall');
+
+    if (lastStatus) {
+      render(lastStatus, lastComplete);
+    }
+  }
+
+  document.getElementById('langSelect').addEventListener('change', function (e) {
+    applyLanguage(e.target.value);
+  });
+
+  function exec(cmd) {
+    try {
+      if (window.ksu && typeof window.ksu.exec === 'function') {
+        return window.ksu.exec(cmd) || '';
+      }
+    } catch (e) {}
+    return '';
+  }
+
+  function toast(msg) {
+    try {
+      if (window.ksu && typeof window.ksu.toast === 'function') {
+        window.ksu.toast(msg);
+        return;
+      }
+    } catch (e) {}
+    alert(msg);
+  }
+
+  // Visual button lock with busy state and text update
+  function setButtonBusy(btn, isBusy, busyText, normalText) {
+    if (!btn) return;
+    btn.disabled = isBusy;
+    if (isBusy) {
+      btn.dataset.originalText = btn.textContent;
+      if (busyText) btn.textContent = busyText;
+      btn.classList.add('is-loading');
+    } else {
+      btn.textContent = normalText || btn.dataset.originalText || btn.textContent;
+      btn.classList.remove('is-loading');
+    }
+  }
+
+  var radios = Array.prototype.slice.call(document.querySelectorAll('input[name=mode]'));
+  var consentRow = document.getElementById('consentRow');
+  var consent = document.getElementById('consent');
+  var activeModeVal = 1;
+
+  function currentMode() {
+    var raw = exec('settings get global hyperos_uiskipper_mode').trim();
+    var n = parseInt(raw, 10);
+    return (n === 1 || n === 2) ? n : 1;
+  }
+
+  function updateVisualSelection(mode) {
+    activeModeVal = mode;
+    radios.forEach(function (r) {
+      var isTarget = (parseInt(r.value, 10) === mode);
+      r.checked = isTarget;
+      var card = document.getElementById('opt_mode' + r.value);
+      if (card) {
+        if (isTarget) card.classList.add('selected');
+        else card.classList.remove('selected');
+      }
+    });
+
+    if (mode === 2) {
+      consentRow.style.display = 'flex';
+    } else {
+      // Whenever switching to Mode 1, explicitly reset and hide the consent checkbox!
+      consent.checked = false;
+      consentRow.style.display = 'none';
+    }
+  }
+
+  function commitMode(mode) {
+    exec('settings put global hyperos_uiskipper_mode ' + mode);
+    exec('am force-stop com.miui.securitycenter');
+    var label = (mode === 2) ? t('mode2_title') : t('mode1_title');
+    toast(t('saved_toast', { mode: label }));
+    refreshInfo();
+  }
+
+  function selectOption(mode) {
+    if (mode === 1) {
+      updateVisualSelection(1);
+      commitMode(1);
+    } else if (mode === 2) {
+      updateVisualSelection(2);
+      if (consent.checked) {
+        commitMode(2);
+      } else {
+        toast(t('consent_required'));
+      }
+    }
+  }
+
+  // When user checks the consent box in Mode 2, apply Mode 2 immediately
+  consent.addEventListener('change', function () {
+    if (consent.checked) {
+      commitMode(2);
+    } else {
+      // If unchecked, fall back to Mode 1
+      selectOption(1);
+    }
+  });
+
+  radios.forEach(function (r) {
+    r.addEventListener('change', function () {
+      selectOption(parseInt(r.value, 10));
+    });
+  });
+
+  document.getElementById('opt_mode1').addEventListener('click', function (e) {
+    if (e.target.tagName !== 'INPUT') selectOption(1);
+  });
+  document.getElementById('opt_mode2').addEventListener('click', function (e) {
+    if (e.target.id !== 'consent' && e.target.tagName !== 'INPUT') selectOption(2);
+  });
+
+  var restartBtn = document.getElementById('restart');
+  restartBtn.addEventListener('click', function () {
+    if (restartBtn.disabled) return;
+    setButtonBusy(restartBtn, true, '⏳ ' + t('btn_restarting'));
+    setTimeout(function () {
+      try {
+        exec('am force-stop com.miui.securitycenter');
+        toast(t('restarted_toast'));
+      } finally {
+        setButtonBusy(restartBtn, false, null, t('restart_btn'));
+      }
+    }, 80);
+  });
+
+  var MODDIR = '/data/adb/modules/hyperos_ui_skipper';
+
+  function parseStatus(raw) {
+    var o = {};
+    raw.split('\n').forEach(function (line) {
+      var i = line.indexOf('=');
+      if (i > 0) o[line.slice(0, i).trim()] = line.slice(i + 1).trim();
+    });
+    return o;
+  }
+
+  function row(ok, text, sub) {
+    var ico = ok === true ? '✅' : (ok === false ? '❌' : '⏳');
+    return '<li><span class="ico">' + ico + '</span><div><strong>' + text +
+      '</strong>' + (sub ? '<small>' + sub + '</small>' : '') + '</div></li>';
+  }
+
+  var cbSeq = 0;
+  function run(cmd, timeoutMs, cb) {
+    var done = false;
+    function finish(out, err) {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      cb(out, err);
+    }
+    var timer = setTimeout(function () { finish('', 'timeout'); }, timeoutMs);
+    var name = '__ksu_cb_' + (++cbSeq);
+    try {
+      window[name] = function (errno, stdout, stderr) {
+        delete window[name];
+        finish(stdout || '', errno === 0 ? '' : (stderr || ('error ' + errno)));
+      };
+      window.ksu.exec(cmd, '{}', name);
+    } catch (e) {
+      delete window[name];
+      setTimeout(function () {
+        try { finish(exec(cmd), ''); } catch (e2) { finish('', String(e2)); }
+      }, 0);
+    }
+  }
+
+  var lastStatus = null;
+  var lastComplete = false;
+
+  function render(s, complete) {
+    lastStatus = s;
+    lastComplete = complete;
+    var banner = document.getElementById('banner');
+    var ok = s.state === 'ok';
+    var checking = !complete || s.state === 'checking';
+    banner.className = 'banner ' + (checking ? '' : (ok ? 'ok' : 'bad'));
+    
+    var bannerMsg = checking ? t('checking_status') : (t(s.state) || s.state);
+    banner.textContent = (checking ? '⏳ ' : (ok ? '✅ ' : '❌ ')) + bannerMsg;
+
+    var fwName = s.framework_name && s.framework_name !== 'None' ? s.framework_name : 'Vector / LSPosed';
+    var pending = function (v) { return v === 'unknown' || v === undefined ? null : v === '1'; };
+
+    var activeDesc = (s.mode === '2') ? t('mode2_title') : t('mode1_title');
+
+    document.getElementById('checks').innerHTML =
+      row(s.disabled !== '1', t('module_setting'), (s.disabled === '1' ? t('disabled') : t('active'))) +
+      row(s.vector_module === '1' && s.vector_daemon === '1', t('framework', { name: fwName }),
+          s.vector_module !== '1' ? t('not_installed') : (s.vector_daemon !== '1' ? t('daemon_stopped') : t('daemon_running'))) +
+      row(s.apk === '1', t('apk_name'), s.apk === '1' ? t('installed') : t('not_installed')) +
+      row(pending(s.enabled), t('framework_enabled'),
+          pending(s.enabled) === false ? t('framework_enabled_hint') : '') +
+      row(pending(s.scope), t('scope_item'),
+          pending(s.scope) === false ? t('scope_hint') : '') +
+      row(pending(s.hook), t('hook_loaded'),
+          s.hook === '1' ? '' : (s.hook === '0' ? t('hook_pending') : ''));
+
+    document.getElementById('activate').style.display =
+      (s.apk === '1' && (s.state === 'not_enabled' || s.state === 'no_scope')) ? 'block' : 'none';
+    document.getElementById('reinstall').style.display = (s.apk === '1' || !s.state) ? 'none' : 'block';
+    document.getElementById('info').textContent = t('active_mode') + activeDesc;
+  }
+
+  var refreshing = false;
+  var refreshBtn = document.getElementById('refresh');
+  function refreshInfo() {
+    if (refreshing) return;
+    refreshing = true;
+    setButtonBusy(refreshBtn, true, '⏳ ' + t('btn_refreshing'));
+
+    var fail = function (why) {
+      refreshing = false;
+      setButtonBusy(refreshBtn, false, null, t('btn_refresh'));
+      var banner = document.getElementById('banner');
+      banner.className = 'banner bad';
+      banner.textContent = '❌ ' + why;
+    };
+
+    run('sh ' + MODDIR + '/status.sh --fast; [ -f ' + MODDIR + '/disable ] && echo disabled=1', 10000, function (out, err) {
+      var fast = parseStatus(out);
+      if (!fast.state) { fail(err || 'status.sh empty output'); return; }
+      render(fast, false);
+
+      run('sh ' + MODDIR + '/status.sh --prop; [ -f ' + MODDIR + '/disable ] && echo disabled=1', 40000, function (out2, err2) {
+        refreshing = false;
+        setButtonBusy(refreshBtn, false, null, t('btn_refresh'));
+        var full = parseStatus(out2);
+        if (!full.state) {
+          var banner = document.getElementById('banner');
+          banner.className = 'banner bad';
+          banner.textContent = '❌ ' + (err2 || 'status error');
+          return;
+        }
+        render(full, true);
+      });
+    });
+  }
+
+  refreshBtn.addEventListener('click', refreshInfo);
+
+  var activateBtn = document.getElementById('activate');
+  activateBtn.addEventListener('click', function () {
+    if (activateBtn.disabled) return;
+    setButtonBusy(activateBtn, true, '⏳ ' + t('btn_activating'));
+    var b = document.getElementById('banner');
+    b.className = 'banner';
+    b.textContent = '⏳ ' + t('checking_status');
+    run('sh ' + MODDIR + '/activate.sh', 40000, function (out, err) {
+      setButtonBusy(activateBtn, false, null, t('btn_activate'));
+      var ok = out.trim().split('\n').pop() === 'ok';
+      toast(ok ? t('activate_success') : t('activate_failed') + (out.trim().split('\n').pop() || err));
+      refreshInfo();
+    });
+  });
+
+  var uninstallBtn = document.getElementById('uninstall');
+  uninstallBtn.addEventListener('click', function () {
+    if (!confirm(t('uninstall_confirm'))) return;
+    if (uninstallBtn.disabled) return;
+    setButtonBusy(uninstallBtn, true, '⏳...');
+    run('pm uninstall dev.hengen.uiskipper 2>&1; settings delete global hyperos_uiskipper_mode; touch ' + MODDIR + '/remove', 30000, function (out) {
+      toast(t('uninstall_toast'));
+      document.getElementById('banner').textContent = t('uninstall_toast');
+    });
+  });
+
+  var reinstallBtn = document.getElementById('reinstall');
+  reinstallBtn.addEventListener('click', function () {
+    if (reinstallBtn.disabled) return;
+    setButtonBusy(reinstallBtn, true, '⏳ ' + t('btn_installing'));
+    setTimeout(function () {
+      try {
+        var out = exec('cp ' + MODDIR + '/HyperOS-UI-Skipper.apk /data/local/tmp/uiskipper.apk && ' +
+          'chmod 644 /data/local/tmp/uiskipper.apk && pm install -r /data/local/tmp/uiskipper.apk 2>&1; ' +
+          'rm -f /data/local/tmp/uiskipper.apk');
+        toast(out.indexOf('Success') >= 0 ? t('apk_installed') : t('apk_failed') + out.trim());
+      } finally {
+        setButtonBusy(reinstallBtn, false, null, t('btn_reinstall'));
+        refreshInfo();
+      }
+    }, 80);
+  });
+
+  applyLanguage(currentLang);
+  var initMode = 1;
+  try { initMode = currentMode(); } catch (e) {}
+  updateVisualSelection(initMode);
+  if (initMode === 2) consent.checked = true;
+  refreshInfo();
+</script>
+</body>
+</html>

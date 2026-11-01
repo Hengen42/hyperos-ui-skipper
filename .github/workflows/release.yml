@@ -1,0 +1,79 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & Package Module
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build Xposed Hook APK
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :xposed-module:assembleRelease --stacktrace
+
+      - name: Prepare Module Files and Package Flashable Zip
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          echo "Building release for tag: $TAG_NAME"
+
+          # Locate built APK
+          APK_SRC=$(find xposed-module/build/outputs/apk/release -name "*.apk" | head -n 1)
+          if [ -z "$APK_SRC" ]; then
+            APK_SRC=$(find xposed-module/build/outputs/apk -name "*.apk" | head -n 1)
+          fi
+          cp "$APK_SRC" xposed-module/HyperOS-UI-Skipper.apk
+
+          # Assemble Magisk / KernelSU flashable zip
+          OUT_DIR="zygisk-module/out"
+          rm -rf "$OUT_DIR"
+          mkdir -p "$OUT_DIR"
+
+          # Update version in module.prop if built from a tag
+          if [ -n "$TAG_NAME" ] && [ "$TAG_NAME" != "refs/heads/main" ]; then
+            sed -i "s/^version=.*/version=$TAG_NAME/" zygisk-module/module.prop
+          fi
+
+          cp zygisk-module/module.prop "$OUT_DIR/"
+          for script in customize.sh uninstall.sh action.sh service.sh status.sh activate.sh; do
+            tr -d '\r' < "zygisk-module/$script" > "$OUT_DIR/$script"
+            chmod 755 "$OUT_DIR/$script"
+          done
+
+          cp xposed-module/HyperOS-UI-Skipper.apk "$OUT_DIR/HyperOS-UI-Skipper.apk"
+          cp -r zygisk-module/webroot "$OUT_DIR/webroot"
+
+          cd "$OUT_DIR"
+          zip -r9 ../HyperOS-UI-Skipper.zip ./*
+          cd ../..
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: HyperOS UI Skipper ${{ github.ref_name }}
+          files: |
+            zygisk-module/HyperOS-UI-Skipper.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
