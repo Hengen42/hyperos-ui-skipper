@@ -30,8 +30,18 @@ TMP_APK=/data/local/tmp/HyperOS-UI-Skipper.apk
 if [ -f "$APK" ]; then
   ui_print "- Installing hook APK (dev.hengen.uiskipper)..."
   cp "$APK" "$TMP_APK" && chmod 0644 "$TMP_APK"
-  if OUT=$(pm install -r "$TMP_APK" 2>&1) && echo "$OUT" | grep -q Success; then
+  OUT=$(pm install -r "$TMP_APK" 2>&1)
+  if echo "$OUT" | grep -q Success; then
     ui_print "- Hook APK installed successfully."
+  elif echo "$OUT" | grep -q "INSTALL_FAILED_UPDATE_INCOMPATIBLE"; then
+    ui_print "- Different signature detected; performing clean update..."
+    pm uninstall dev.hengen.uiskipper >/dev/null 2>&1
+    OUT2=$(pm install "$TMP_APK" 2>&1)
+    if echo "$OUT2" | grep -q Success; then
+      ui_print "- Hook APK updated cleanly."
+    else
+      ui_print "! Clean installation failed: $OUT2"
+    fi
   else
     ui_print "! APK installation failed: $OUT"
     ui_print "  You can reinstall it later using the WebUI button."
