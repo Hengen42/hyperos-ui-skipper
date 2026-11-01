@@ -84,7 +84,7 @@ Everything is packaged and delivered through a single flashable `.zip` file:
 Users do not need to install any APK manually:
 
 1. Ensure **Vector** or **LSPosed** is installed and active on your rooted device.
-2. Download the single **`HyperOS-UI-Skipper.zip`** package from the [Releases](../../releases) tab.
+2. Download the latest **`HyperOS-UI-Skipper-v*.zip`** package from the [Releases](../../releases) tab.
 3. Flash the `.zip` file via **KernelSU**, **APatch**, or **Magisk**.
    > [!NOTE]  
    > The installer script (`customize.sh`) automatically installs the bundled hook APK and configures framework scope for you.

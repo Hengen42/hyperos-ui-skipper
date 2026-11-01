@@ -35,7 +35,11 @@ jobs:
 
       - name: Prepare Module Files and Package Flashable Zip
         run: |
-          echo "Packaging module zip..."
+          # Read version from module.prop
+          PROP_VERSION=$(grep "^version=" zygisk-module/module.prop | cut -d'=' -f2 | tr -d '\r')
+          TAG_NAME="${PROP_VERSION:-v1.0.2}"
+          ZIP_NAME="HyperOS-UI-Skipper-${TAG_NAME}.zip"
+          echo "Packaging module zip as: $ZIP_NAME"
 
           # Locate built APK
           APK_SRC=$(find xposed-module/build/outputs/apk/release -name "*.apk" | head -n 1)
@@ -60,12 +64,16 @@ jobs:
           cp -r zygisk-module/webroot "$OUT_DIR/webroot"
 
           cd "$OUT_DIR"
-          zip -r9 ../HyperOS-UI-Skipper.zip ./*
+          zip -r9 "../$ZIP_NAME" ./*
           cd ../..
+
+          # Output filename for release step
+          echo "ZIP_PATH=zygisk-module/$ZIP_NAME" >> $GITHUB_ENV
+          echo "TAG_TARGET=$TAG_NAME" >> $GITHUB_ENV
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.2
+          tag_name: ${{ env.TAG_TARGET }}
           files: |
-            zygisk-module/HyperOS-UI-Skipper.zip
+            ${{ env.ZIP_PATH }}

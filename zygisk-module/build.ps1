@@ -2,17 +2,20 @@
 .SYNOPSIS
   Builds the HyperOS UI Skipper flashable module (.zip).
 
-  This module packages module.prop, installer scripts, the bundled hook APK,
-  and the WebUI used to switch between Mode 1 and Mode 2.
+  Automatically reads version from module.prop and names the archive accordingly:
+  HyperOS-UI-Skipper-vX.X.X.zip
 #>
 
 $ErrorActionPreference = 'Stop'
 
 $Root    = $PSScriptRoot
 $OutDir  = "$Root\out"
-$ZipName = "HyperOS-UI-Skipper.zip"
 
-Write-Host "== assemble module zip ==" -ForegroundColor Cyan
+# Read version dynamically from module.prop
+$propVersion = (Get-Content "$Root\module.prop" | Select-String "^version=").ToString().Split("=")[1].Trim()
+$ZipName = "HyperOS-UI-Skipper-$propVersion.zip"
+
+Write-Host "== assemble module zip ($ZipName) ==" -ForegroundColor Cyan
 if (Test-Path $OutDir) { Remove-Item $OutDir -Recurse -Force }
 New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
 Copy-Item "$Root\module.prop" "$OutDir\module.prop"

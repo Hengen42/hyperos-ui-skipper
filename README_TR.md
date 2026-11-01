@@ -84,7 +84,7 @@ Proje iki parçadan oluşur; **kullanıcının ekstra bir şey yapmasına gerek 
 Kullanıcıların harici bir APK indirmesine veya elle yüklemesine gerek yoktur:
 
 1. Cihazınızda **Vector** veya **LSPosed** çerçevesinin kurulu olduğundan emin olun.
-2. [Releases](../../releases) bölümünden tek dosya olan **`HyperOS-UI-Skipper.zip`** dosyasını indirin.
+2. [Releases](../../releases) bölümünden en güncel **`HyperOS-UI-Skipper-v*.zip`** dosyasını indirin.
 3. Modülü **KernelSU**, **APatch** veya **Magisk** üzerinden flaşlayın.
    > [!NOTE]  
    > Flaşlama betiği (`customize.sh`), gerekli kanca APK'sını zip'in içinden otomatik olarak sisteme kurar ve çerçevenizde etkinleştirir.
