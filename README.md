@@ -87,9 +87,8 @@ Users do not need to install any APK manually:
 2. Download the latest **`HyperOS-UI-Skipper-v*.zip`** package from the [Releases](../../releases) tab.
 3. Flash the `.zip` file via **KernelSU**, **APatch**, or **Magisk**.
    > [!NOTE]  
-   > The installer script (`customize.sh`) automatically installs the bundled hook APK and configures framework scope for you.
-4. Reboot your device.
-5. Open the module's **WebUI** in your root manager to select your desired behavior.
+   > The installer script (`customize.sh`) automatically installs the bundled hook APK, activates it in Vector/LSPosed, and configures the target scope. **No reboot is required.**
+4. Open the module's **WebUI** in your root manager to select your desired behavior.
 
 ---
 
@@ -108,7 +107,7 @@ Users do not need to install any APK manually:
 # 2. Package flashable module ZIP:
 .\zygisk-module\build.ps1
 ```
-The final flashable zip will be generated at `zygisk-module\HyperOS-UI-Skipper.zip`.
+The final flashable zip will be generated at `zygisk-module\HyperOS-UI-Skipper-v*.zip`.
 
 ---
 

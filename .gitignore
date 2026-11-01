@@ -4,7 +4,6 @@ out/
 *.apk.idsig
 *.zip
 debug.keystore
-work/
-legacy/zygisk-native/build/
-legacy/zygisk-native/out/
-legacy/zygisk-native/jni/payload_dex.h
+.gradle/
+.idea/
+*.iml

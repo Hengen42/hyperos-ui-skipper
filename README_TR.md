@@ -87,9 +87,8 @@ Kullanıcıların harici bir APK indirmesine veya elle yüklemesine gerek yoktur
 2. [Releases](../../releases) bölümünden en güncel **`HyperOS-UI-Skipper-v*.zip`** dosyasını indirin.
 3. Modülü **KernelSU**, **APatch** veya **Magisk** üzerinden flaşlayın.
    > [!NOTE]  
-   > Flaşlama betiği (`customize.sh`), gerekli kanca APK'sını zip'in içinden otomatik olarak sisteme kurar ve çerçevenizde etkinleştirir.
-4. Cihazınızı yeniden başlatın.
-5. Modül yöneticinizdeki **WebUI** simgesine tıklayarak dilediğiniz çalışma seçeneğini belirleyin.
+   > Flaşlama betiği (`customize.sh`), gerekli kanca APK'sını zip'in içinden otomatik olarak kurar, Vector/LSPosed üzerinde otomatik etkinleştirir ve kapsamı ayarlar. **Cihazı yeniden başlatmanıza gerek yoktur.**
+4. Modül yöneticinizdeki **WebUI** simgesine tıklayarak dilediğiniz çalışma seçeneğini belirleyin.
 
 ---
 
@@ -110,7 +109,7 @@ Projeyi kendiniz derlemek isterseniz:
 # 2. Flaşlanabilir Modül Zip'ini oluştur:
 .\zygisk-module\build.ps1
 ```
-Çıktı `zygisk-module\HyperOS-UI-Skipper.zip` konumunda hazır olacaktır.
+Çıktı `zygisk-module\HyperOS-UI-Skipper-v*.zip` konumunda hazır olacaktır.
 
 ---
 
