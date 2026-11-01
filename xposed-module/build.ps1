@@ -19,7 +19,7 @@ if ($LASTEXITCODE) { throw 'd8 failed' }
 
 $unsigned = "$out\unsigned.apk"
 & "$($bt.FullName)\aapt2.exe" compile --dir "$root\src\main\res" -o "$out\res.zip"
-& "$($bt.FullName)\aapt2.exe" link -o $unsigned -I $androidJar --manifest "$root\src\main\AndroidManifest.xml" -A "$root\src\main\assets" --min-sdk-version 26 --target-sdk-version 34 --version-code 103 --version-name 1.0.3 "$out\res.zip"
+& "$($bt.FullName)\aapt2.exe" link -o $unsigned -I $androidJar --manifest "$root\src\main\AndroidManifest.xml" -A "$root\src\main\assets" --min-sdk-version 26 --target-sdk-version 34 --version-code 104 --version-name 1.0.4 "$out\res.zip"
 if ($LASTEXITCODE) { throw 'aapt2 failed' }
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem

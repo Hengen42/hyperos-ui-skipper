@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4
+- **Installer Resilience:** Added automatic recovery for `INSTALL_FAILED_UPDATE_INCOMPATIBLE` during in-app module updates, ensuring seamless upgrades even if keystore signatures differ.
+- **Workflow Automation:** Release creation, release notes generation, and ZIP asset uploading are now fully automated on every push.
+
 ## 1.0.3
 - **In-App Module Updates:** Added `updateJson` support so KernelSU, Magisk, and APatch can directly notify users and update the module with a single tap.
 - **Dynamic Release Asset Naming:** Release ZIP archives are now dynamically named with the version tag (`HyperOS-UI-Skipper-vX.X.X.zip`).

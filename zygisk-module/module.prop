@@ -1,7 +1,7 @@
 id=hyperos_ui_skipper
 name=HyperOS UI Skipper
-version=v1.0.3
-versionCode=103
+version=v1.0.4
+versionCode=104
 author=Hengen
 description=HyperOS/MIUI güvenlik onay ekranlarındaki yapay bekleme sayacını kaldırır veya otomatik onaylar. Ayarlar modül WebUI'sinden yönetilir.
 updateJson=https://raw.githubusercontent.com/Hengen42/hyperos-ui-skipper/main/update.json
