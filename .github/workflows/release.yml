@@ -92,5 +92,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG_TARGET }}
+          name: HyperOS UI Skipper ${{ env.TAG_TARGET }}
+          generate_release_notes: true
           files: |
             ${{ env.ZIP_PATH }}
