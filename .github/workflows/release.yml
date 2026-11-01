@@ -80,6 +80,24 @@ jobs:
           echo "ZIP_PATH=zygisk-module/$ZIP_NAME" >> $GITHUB_ENV
           echo "TAG_TARGET=$TAG_NAME" >> $GITHUB_ENV
 
+      - name: Extract Release Notes from CHANGELOG.md
+        run: |
+          python3 -c "
+          import sys, re
+          tag = sys.argv[1].lstrip('v')
+          with open('CHANGELOG.md', 'r', encoding='utf-8') as f:
+              content = f.read()
+          pattern = rf'##\s+v?{re.escape(tag)}\b(.*?)(?=\n##\s+|$)'
+          m = re.search(pattern, content, re.DOTALL)
+          notes = m.group(1).strip() if m else ''
+          with open('release_notes.md', 'w', encoding='utf-8') as f:
+              if notes:
+                  f.write(notes + '\n')
+              else:
+                  f.write('Release ' + sys.argv[1] + '\n')
+          " "${{ env.TAG_TARGET }}"
+          cat release_notes.md
+
       - name: Update update.json in repository
         run: |
           git config --global user.name "github-actions[bot]"
@@ -93,6 +111,7 @@ jobs:
         with:
           tag_name: ${{ env.TAG_TARGET }}
           name: HyperOS UI Skipper ${{ env.TAG_TARGET }}
+          body_path: release_notes.md
           generate_release_notes: true
           files: |
             ${{ env.ZIP_PATH }}
