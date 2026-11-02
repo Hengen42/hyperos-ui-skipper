@@ -10,32 +10,32 @@ case "$MODE" in
 esac
 
 if ! settings put global hyperos_uiskipper_mode "$NEW"; then
-  echo "HyperOS UI Skipper: Ayar kaydedilemedi."
+  echo "HyperOS UI Skipper: Failed to save setting."
 fi
 
 am force-stop com.miui.securitycenter 2>/dev/null
-echo "com.miui.securitycenter yeniden başlatıldı."
+echo "com.miui.securitycenter restarted."
 
 if [ "$NEW" = "2" ]; then
-  echo "Seçenek: Tam Otomatik Onayla (Anında)"
+  echo "Mode: Full Automatic (Instant)"
 else
-  echo "Seçenek: Sadece Sayacı Atla (Önerilen)"
+  echo "Mode: Skip Countdown Only (Recommended)"
 fi
 
 STATUS=$(sh "$MODDIR/status.sh" --prop 2>/dev/null)
 case "$STATUS" in
   *state=not_enabled*|*state=no_scope*)
-    echo "Çerçevede otomatik etkinleştiriliyor..."
+    echo "Activating automatically in framework..."
     sh "$MODDIR/activate.sh" >/dev/null 2>&1
     STATUS=$(sh "$MODDIR/status.sh" --prop 2>/dev/null)
     ;;
 esac
 case "$STATUS" in
-  *state=ok*) echo "✅ Kanca başarıyla devrede." ;;
-  *state=no_vector*) echo "❌ Vector veya LSPosed modülü aktif değil." ;;
-  *state=no_daemon*) echo "❌ Çerçeve servisi çalışmıyor; cihazı yeniden başlatın." ;;
-  *state=no_apk*) echo "❌ Kanca APK'sı kurulu değil; WebUI'den kurun." ;;
-  *state=not_enabled*) echo "❌ Modül onay bekliyor; etkinleştirip cihazı yeniden başlatın." ;;
-  *state=no_scope*) echo "❌ com.miui.securitycenter kapsamı eksik." ;;
+  *state=ok*) echo "✅ Hook successfully active." ;;
+  *state=no_vector*) echo "❌ Vector or LSPosed module is not active." ;;
+  *state=no_daemon*) echo "❌ Framework service is not running; reboot device." ;;
+  *state=no_apk*) echo "❌ Hook APK is not installed; install via WebUI." ;;
+  *state=not_enabled*) echo "❌ Module is pending approval; enable and reboot device." ;;
+  *state=no_scope*) echo "❌ com.miui.securitycenter scope is missing." ;;
 esac
 exit 0

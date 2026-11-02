@@ -89,7 +89,7 @@ case "$mode" in 1|2) ;; *) mode=1 ;; esac
 
 if [ "$mode" = "2" ]; then
   mode_desc="Tam Otomatik"
-  mode_desc_en="Full Auto"
+  mode_desc_en="Full Automatic"
 else
   mode_desc="Sadece Sayacı Atla"
   mode_desc_en="Skip Countdown Only"
@@ -97,25 +97,25 @@ fi
 
 if [ "$framework_module" != 1 ]; then
   state=no_vector
-  msg="❌ Xposed çerçevesi (Vector / LSPosed) bulunamadı."
+  msg="❌ Xposed framework (Vector / LSPosed) not found."
 elif [ "$framework_daemon" != 1 ]; then
   state=no_daemon
-  msg="❌ $framework_name servisi çalışmıyor — cihazı yeniden başlatın."
+  msg="❌ $framework_name service is not running — reboot device."
 elif [ "$apk" != 1 ]; then
   state=no_apk
-  msg="❌ Kanca APK'sı kurulu değil — WebUI üzerinden kurun."
+  msg="❌ Hook APK is not installed — install via WebUI."
 elif [ "$enabled" = unknown ]; then
   state=checking
-  msg="⏳ Durum denetleniyor..."
+  msg="⏳ Checking status..."
 elif [ "$enabled" != 1 ]; then
   state=not_enabled
-  msg="❌ Modül $framework_name yöneticisinde onay bekliyor."
+  msg="❌ Module is pending approval in $framework_name manager."
 elif [ "$scope" != 1 ]; then
   state=no_scope
-  msg="❌ Hedef kapsam eksik — $framework_name içinde $TARGET seçilmeli."
+  msg="❌ Target scope missing — select $TARGET in $framework_name."
 else
   state=ok
-  msg="✅ Aktif ($framework_name) — $mode_desc"
+  msg="✅ Active ($framework_name) — $mode_desc_en"
 fi
 
 echo "state=$state"

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.5
+- **English Action Button:** Action button execution outputs (`action.sh`) are now fully in English.
+- **English Module Status:** Dynamic module status in root managers (KernelSU, Magisk, APatch) is now displayed in English (e.g. `✅ Active (Vector) — Skip Countdown Only`).
+- **Automated Release Notes:** GitHub release notes are now automatically parsed and populated directly from `CHANGELOG.md`.
+- **Repository Line-Ending Rules:** Added `.gitattributes` to enforce LF line endings across all scripts and GitHub Actions workflows.
+
 ## 1.0.4
 - **Installer Resilience:** Added automatic recovery for `INSTALL_FAILED_UPDATE_INCOMPATIBLE` during in-app module updates, ensuring seamless upgrades even if keystore signatures differ.
 - **Workflow Automation:** Release creation, release notes generation, and ZIP asset uploading are now fully automated on every push.
