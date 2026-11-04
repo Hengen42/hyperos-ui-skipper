@@ -10,8 +10,8 @@ android {
         applicationId = "dev.hengen.uiskipper"
         minSdk = 26
         targetSdk = 34
-        versionCode = 104
-        versionName = "1.0.4"
+        versionCode = 106
+        versionName = "1.0.6"
     }
 
     buildTypes {
@@ -29,6 +29,7 @@ android {
     sourceSets {
         getByName("main") {
             java.srcDirs("src/main/java", "stubs")
+            resources.srcDirs("src/main/resources")
         }
     }
 

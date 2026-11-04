@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.6
+- **Fixed Scope Restriction (LSPosed):** Added static scope configuration (`staticScope=true`, `scope.list`, and `module.prop` in `META-INF/xposed/`) inspired by DisableFlagSecure. Strictly locks the scope in LSPosed Manager to target only `com.miui.securitycenter`, preventing users from selecting unrelated applications.
+- **Dual Framework Metadata:** Maintained full compatibility across both Modern LibXposed (`META-INF/xposed/`) and Classic XposedBridge (`assets/xposed_init` & `xposedscope`) standards for Vector and LSPosed.
+- **Version Synchronization:** Synchronized module specifications and documentation across all components to v1.0.6.
+
 ## 1.0.5
 - **English Action Button:** Action button execution outputs (`action.sh`) are now fully in English.
 - **English Module Status:** Dynamic module status in root managers (KernelSU, Magisk, APatch) is now displayed in English (e.g. `✅ Active (Vector) — Skip Countdown Only`).
