@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-HyperOS%201%20%7C%202%20%7C%203%20%7C%20MIUI-blue.svg)
-![Version](https://img.shields.io/badge/Version-v1.0.6-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-v1.0.7-brightgreen.svg)
 ![Root](https://img.shields.io/badge/Root-KernelSU%20%7C%20KernelSU--Next%20%7C%20APatch%20%7C%20Magisk-orange.svg)
 ![Hook](https://img.shields.io/badge/Hook-Vector%20%7C%20LSPosed%20(Xposed%20API%2093%2B)-informational.svg)
 
@@ -116,6 +116,37 @@ Projeyi kendiniz derlemek isterseniz:
 
 ---
 
-## 7. Lisans ve Katkı
+## 7. Katkıda Bulunma, Pull Request (PR) ve Hata Bildirimi
+
+Açık kaynak topluluğundan gelecek katkıları ve geliştirmeleri memnuniyetle karşılıyoruz!
+
+### Kod ve Geliştirme Gönderme (Pull Request - PR)
+Eğer bir hata düzelttiyseniz, yeni bir HyperOS sürümü/bölgesi için destek eklediyseniz veya performans geliştirmesi yaptıysanız:
+1. Bu depoyu sağ üstteki **Fork** butonuyla kendi GitHub hesabınıza çatallayın (fork edin).
+2. Değişiklikleriniz için yeni bir geliştirme dalı oluşturun:
+   ```bash
+   git checkout -b feature/yeni-gelistirme
+   ```
+3. Kodlarınızı anlaşılır commit mesajlarıyla kaydedin.
+4. Dalınızı push edip ana depomuzun `main` dalına bir **Pull Request (PR)** açın. İncelendikten sonra memnuniyetle projeye dahil edilecektir!
+
+### Hata Bildirimi ve Özellik İstekleri (GitHub Issues)
+Kod yazmadan sadece karşılaştığınız bir sorunu veya aklınızdaki bir özelliği bildirmek isterseniz:
+1. [GitHub Issues](https://github.com/Hengen42/hyperos-ui-skipper/issues) sayfamıza gidin.
+2. **"New Issue"** (Yeni Konu) butonuna tıklayarak durumu açıklayın.
+3. Cihaz modelinizi, HyperOS sürümünüzü ve root yöneticinizi belirtmeyi unutmayın.
+
+---
+
+## 8. Sıkça Sorulan Sorular & Sorun Giderme (SSS)
+
+### S: Sürekli "Vector yüklendi" (Vector loaded) bildirimi geliyor, modülle bir ilgisi var mı?
+**Cevap:** Hayır, bu bildirim HyperOS UI Skipper modülü ile ilgili **değildir**. Bu bildirim, **Vector çerçevesinin kendi yerleşik durum bildirimidir** (*Status Notification*).
+- **Neden gelir?** Vector, HyperOS'in arka plandaki servisleri ve daemon'ı (`vectord`) kapatmasını önlemek ve kullanıcıya Vector Yöneticisine hızlı erişim sağlamak için bu kalıcı durumu gösterir.
+- **Nasıl kapatılır?** **Vector Yöneticisi** uygulamasını açın &rarr; Sağ alttaki **Ayarlar** (çark) sekmesine gelin &rarr; **"Durum bildirimi" (Status notification)** seçeneğini **KAPALI** yapın. Ya da bildirim geldiğinde üzerine basılı tutup `vector_status` bildirim kanalını kapatabilirsiniz.
+
+---
+
+## 9. Lisans ve Katkı
 - **Geliştirici:** Hengen
 - **Lisans:** MIT License

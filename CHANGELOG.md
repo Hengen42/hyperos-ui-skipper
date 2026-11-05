@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.7
+- **Contributing & Issue Tracking:** Added formal Pull Request (PR) contribution guidelines and GitHub Issues tracking to documentation so developers can submit enhancements and users can report issues.
+- **Framework Status Notification FAQ:** Clarified that the "Vector loaded" (*Vector yüklendi*) notification is Vector's own built-in status service (not caused by this module) and documented instructions on how to disable it in Vector settings.
+- **Version Synchronization:** Fully synchronized all documentation badges, module properties, update definitions, and build scripts to v1.0.7.
+
 ## 1.0.6
 - **Fixed Scope Restriction (LSPosed):** Added static scope configuration (`staticScope=true`, `scope.list`, and `module.prop` in `META-INF/xposed/`) inspired by DisableFlagSecure. Strictly locks the scope in LSPosed Manager to target only `com.miui.securitycenter`, preventing users from selecting unrelated applications.
 - **Dual Framework Metadata:** Maintained full compatibility across both Modern LibXposed (`META-INF/xposed/`) and Classic XposedBridge (`assets/xposed_init` & `xposedscope`) standards for Vector and LSPosed.
