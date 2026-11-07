@@ -33,6 +33,9 @@ jobs:
         run: |
           gradle :xposed-module:assembleRelease --stacktrace
 
+      - name: Verify packaged Xposed entry point
+        run: python3 tools/verify_apk.py xposed-module/build/outputs/apk/release/xposed-module-release.apk
+
       - name: Prepare Module Files and Package Flashable Zip
         run: |
           PROP_VERSION=$(grep "^version=" zygisk-module/module.prop | cut -d'=' -f2 | tr -d '\r')

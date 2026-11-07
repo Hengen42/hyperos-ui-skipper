@@ -1,10 +1,15 @@
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
+$buildConfig = Get-Content -LiteralPath "$root/build.gradle.kts" -Raw
+$versionCode = [regex]::Match($buildConfig, 'versionCode\s*=\s*(\d+)').Groups[1].Value
+$versionName = [regex]::Match($buildConfig, 'versionName\s*=\s*"([^"]+)"').Groups[1].Value
+if (-not $versionCode -or -not $versionName) { throw 'Missing APK version in build.gradle.kts' }
 $sdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } else { "$env:LOCALAPPDATA\Android\Sdk" }
 $bt = Get-ChildItem "$sdk\build-tools" | Sort-Object Name | Select-Object -Last 1
 $androidJar = Get-ChildItem "$sdk\platforms" | Sort-Object Name | Select-Object -Last 1 | ForEach-Object { "$($_.FullName)\android.jar" }
 $out = "$root\build"
-Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+if ([IO.Path]::GetFullPath($out) -ne (Join-Path ([IO.Path]::GetFullPath($root)) 'build')) { throw 'Unexpected build directory' }
+Remove-Item -LiteralPath $out -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory "$out\classes", "$out\dex" | Out-Null
 
 $sources = @(Get-ChildItem "$root\src\main\java", "$root\stubs" -Recurse -Filter *.java | ForEach-Object FullName)
@@ -12,14 +17,16 @@ javac --release 8 -Xlint:-options -cp $androidJar -d "$out\classes" $sources
 if ($LASTEXITCODE) { throw 'javac failed' }
 
 # stubs are compile-only; real Xposed classes come from Vector at runtime
-Remove-Item "$out\classes\de" -Recurse -Force
+$stubOutput = [IO.Path]::GetFullPath("$out/classes/de")
+if (-not $stubOutput.StartsWith([IO.Path]::GetFullPath($out) + [IO.Path]::DirectorySeparatorChar)) { throw 'Unexpected stub directory' }
+Remove-Item -LiteralPath $stubOutput -Recurse -Force
 $classFiles = Get-ChildItem "$out\classes" -Recurse -Filter *.class | ForEach-Object FullName
 & "$($bt.FullName)\d8.bat" --min-api 26 --lib $androidJar --output "$out\dex" $classFiles
 if ($LASTEXITCODE) { throw 'd8 failed' }
 
 $unsigned = "$out\unsigned.apk"
 & "$($bt.FullName)\aapt2.exe" compile --dir "$root\src\main\res" -o "$out\res.zip"
-& "$($bt.FullName)\aapt2.exe" link -o $unsigned -I $androidJar --manifest "$root\src\main\AndroidManifest.xml" -A "$root\src\main\assets" --min-sdk-version 26 --target-sdk-version 34 --version-code 104 --version-name 1.0.4 "$out\res.zip"
+& "$($bt.FullName)\aapt2.exe" link -o $unsigned -I $androidJar --manifest "$root\src\main\AndroidManifest.xml" -A "$root\src\main\assets" --min-sdk-version 26 --target-sdk-version 34 --version-code $versionCode --version-name $versionName "$out\res.zip"
 if ($LASTEXITCODE) { throw 'aapt2 failed' }
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem

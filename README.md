@@ -4,7 +4,7 @@
 
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-HyperOS%201%20%7C%202%20%7C%203%20%7C%20MIUI-blue.svg)
-![Version](https://img.shields.io/badge/Version-v1.0.7-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-v1.0.8-brightgreen.svg)
 ![Root](https://img.shields.io/badge/Root-KernelSU%20%7C%20KernelSU--Next%20%7C%20APatch%20%7C%20Magisk-orange.svg)
 ![Hook](https://img.shields.io/badge/Hook-Vector%20%7C%20LSPosed%20(Xposed%20API%2093%2B)-informational.svg)
 

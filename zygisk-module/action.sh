@@ -37,5 +37,6 @@ case "$STATUS" in
   *state=no_apk*) echo "❌ Hook APK is not installed; install via WebUI." ;;
   *state=not_enabled*) echo "❌ Module is pending approval; enable and reboot device." ;;
   *state=no_scope*) echo "❌ com.miui.securitycenter scope is missing." ;;
+  *state=no_hook*) echo "❌ Automatic hook verification failed; restart the device." ;;
 esac
 exit 0

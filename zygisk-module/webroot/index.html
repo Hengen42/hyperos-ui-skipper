@@ -219,6 +219,7 @@
       no_apk: 'Hook APK is not installed — click below to install',
       not_enabled: 'Module needs approval in Vector/LSPosed — enable it and reboot',
       no_scope: 'Scope missing — com.miui.securitycenter must be selected in framework',
+      no_hook: 'Automatic hook verification failed — try restarting the device',
       saved_toast: 'Applied: {mode}. Security Center (com.miui.securitycenter) restarted.',
       restarted_toast: 'Security Center (com.miui.securitycenter) restarted',
       module_setting: 'Configuration Module',
@@ -235,7 +236,7 @@
       scope_item: 'Target Scope: com.miui.securitycenter',
       scope_hint: 'Add to target scope in framework manager',
       hook_loaded: 'Hook Injected (com.miui.securitycenter)',
-      hook_pending: 'Pending (will confirm once com.miui.securitycenter opens)',
+      hook_pending: 'Could not verify the hook automatically',
       active_mode: 'Active Behavior: ',
       btn_activate: 'Activate in Framework',
       btn_activating: 'Activating...',
@@ -272,6 +273,7 @@
       no_apk: 'Kanca APK\'sı kurulu değil — aşağıdaki butondan kurun',
       not_enabled: 'Modül çerçevede onay bekliyor — etkinleştirip yeniden başlatın',
       no_scope: 'Kapsam eksik — çerçevede com.miui.securitycenter seçilmeli',
+      no_hook: 'Otomatik kanca doğrulaması başarısız — cihazı yeniden başlatmayı deneyin',
       saved_toast: 'Uygulandı: {mode}. Güvenlik Merkezi (com.miui.securitycenter) yeniden başlatıldı.',
       restarted_toast: 'Güvenlik Merkezi (com.miui.securitycenter) yeniden başlatıldı',
       module_setting: 'Ayar Modülü',
@@ -288,7 +290,7 @@
       scope_item: 'Hedef Kapsam: com.miui.securitycenter',
       scope_hint: 'Çerçeve ayarlarından kapsama ekleyin',
       hook_loaded: 'Kanca Enjekte Edildi (com.miui.securitycenter)',
-      hook_pending: 'Doğrulama bekleniyor (com.miui.securitycenter açılınca onaylanır)',
+      hook_pending: 'Kanca otomatik olarak doğrulanamadı',
       active_mode: 'Aktif Seçenek: ',
       btn_activate: 'Çerçevede Etkinleştir',
       btn_activating: 'Etkinleştiriliyor...',
@@ -580,7 +582,7 @@
       if (!fast.state) { fail(err || 'status.sh empty output'); return; }
       render(fast, false);
 
-      run('sh ' + MODDIR + '/status.sh --prop; [ -f ' + MODDIR + '/disable ] && echo disabled=1', 40000, function (out2, err2) {
+      run('sh ' + MODDIR + '/status.sh --prop; [ -f ' + MODDIR + '/disable ] && echo disabled=1', 50000, function (out2, err2) {
         refreshing = false;
         setButtonBusy(refreshBtn, false, null, t('btn_refresh'));
         var full = parseStatus(out2);

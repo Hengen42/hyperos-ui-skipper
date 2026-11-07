@@ -75,12 +75,40 @@ if [ "$1" != "--fast" ] && [ "$framework_daemon" = 1 ] && [ "$apk" = 1 ]; then
   fi
 fi
 
-# Check framework logs for successful hook attachment
-if [ "$enabled" = 1 ]; then
+# Require a success line from a currently running SecurityCenter process.
+# Old success lines must not hide a failed injection after an APK update.
+check_hook() {
+  for target_pid in $(pidof "$TARGET" 2>/dev/null); do
+    for LOG in /data/adb/lspd/log/modules_*.log /data/adb/vector/log/modules_*.log; do
+      [ -r "$LOG" ] || continue
+      if grep -E ": *$target_pid:" "$LOG" | grep -F '[HyperOSUiSkipper]' | grep -q 'intercept timer hooked successfully'; then
+        return 0
+      fi
+    done
+  done
+  return 1
+}
+
+if [ "$enabled" = 1 ] && [ "$scope" = 1 ]; then
   hook=0
-  LOG=$(ls -t /data/adb/lspd/log/modules_*.log /data/adb/vector/log/modules_*.log 2>/dev/null | head -n1)
-  if [ -n "$LOG" ] && grep -q "intercept timer hooked successfully" "$LOG" 2>/dev/null; then
+  if check_hook; then
     hook=1
+  elif [ ! -f "$MODDIR/disable" ] && [ ! -f "$MODDIR/remove" ]; then
+    # Acquiring the Settings search provider starts the main SecurityCenter
+    # process without opening an Activity or changing any permission/settings.
+    # Some ROMs do not implement getType; its return value is NOT hook proof.
+    timeout 5 content gettype --uri "content://$TARGET.provider.SecSettingsSearchProvider" --user 0 >/dev/null 2>&1
+
+    # One bounded check per full refresh/boot/install; never a resident watcher.
+    hook_attempt=0
+    while [ "$hook_attempt" -lt 5 ]; do
+      if check_hook; then
+        hook=1
+        break
+      fi
+      hook_attempt=$((hook_attempt + 1))
+      [ "$hook_attempt" -lt 5 ] && sleep 1
+    done
   fi
 fi
 
@@ -113,6 +141,9 @@ elif [ "$enabled" != 1 ]; then
 elif [ "$scope" != 1 ]; then
   state=no_scope
   msg="❌ Target scope missing — select $TARGET in $framework_name."
+elif [ "$hook" != 1 ]; then
+  state=no_hook
+  msg="❌ Automatic hook verification failed — restart the device."
 else
   state=ok
   msg="✅ Active ($framework_name) — $mode_desc_en"

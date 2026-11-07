@@ -1,14 +1,14 @@
 # Changelog
 
-## 1.0.7
-- **Contributing & Issue Tracking:** Added formal Pull Request (PR) contribution guidelines and GitHub Issues tracking to documentation so developers can submit enhancements and users can report issues.
-- **Framework Status Notification FAQ:** Clarified that the "Vector loaded" (*Vector yüklendi*) notification is Vector's own built-in status service (not caused by this module) and documented instructions on how to disable it in Vector settings.
-- **Version Synchronization:** Fully synchronized all documentation badges, module properties, update definitions, and build scripts to v1.0.7.
+## 1.0.8
+- **Critical hook loading fix:** v1.0.6 introduced modern Xposed metadata with `targetApiVersion=102` while the entry class still used the legacy `IXposedHookLoadPackage` API. Vector blocks that API for modules targeting API 102, so the module could appear enabled with the correct scope while no hooks loaded. Removed the incompatible modern declarations and restored classic Xposed loading.
+- **Status accuracy:** Only report an active hook when a running SecurityCenter process has a matching hook success log; old logs no longer count as current injection proof.
+- **Automatic hook verification:** When needed, a full status check starts SecurityCenter silently through a read-only provider request and verifies the current process's hook log. Users no longer need to open SecurityCenter manually. Verification is bounded and does not run a background monitoring loop.
+- **Local APK builds:** Read the APK version from the build configuration instead of hard-coding v1.0.4.
 
 ## 1.0.6
 - **Fixed Scope Restriction (LSPosed):** Added static scope configuration (`staticScope=true`, `scope.list`, and `module.prop` in `META-INF/xposed/`) inspired by DisableFlagSecure. Strictly locks the scope in LSPosed Manager to target only `com.miui.securitycenter`, preventing users from selecting unrelated applications.
-- **Dual Framework Metadata:** Maintained full compatibility across both Modern LibXposed (`META-INF/xposed/`) and Classic XposedBridge (`assets/xposed_init` & `xposedscope`) standards for Vector and LSPosed.
-- **Version Synchronization:** Synchronized module specifications and documentation across all components to v1.0.6.
+- **Known regression:** The modern API metadata was incompatible with the legacy entry class and prevented hook loading in Vector. Fixed in v1.0.8.
 
 ## 1.0.5
 - **English Action Button:** Action button execution outputs (`action.sh`) are now fully in English.

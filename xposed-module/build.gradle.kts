@@ -10,8 +10,8 @@ android {
         applicationId = "dev.hengen.uiskipper"
         minSdk = 26
         targetSdk = 34
-        versionCode = 107
-        versionName = "1.0.7"
+        versionCode = 108
+        versionName = "1.0.8"
     }
 
     buildTypes {
@@ -29,7 +29,8 @@ android {
     sourceSets {
         getByName("main") {
             java.srcDirs("src/main/java", "stubs")
-            resources.srcDirs("src/main/resources")
+            // Entry implements the legacy IXposedHookLoadPackage API. Do not
+            // declare it in META-INF/xposed: API 102 hides the legacy classes.
         }
     }
 

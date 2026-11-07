@@ -16,7 +16,8 @@ $propVersion = (Get-Content "$Root\module.prop" | Select-String "^version=").ToS
 $ZipName = "HyperOS-UI-Skipper-$propVersion.zip"
 
 Write-Host "== assemble module zip ($ZipName) ==" -ForegroundColor Cyan
-if (Test-Path $OutDir) { Remove-Item $OutDir -Recurse -Force }
+if ([IO.Path]::GetFullPath($OutDir) -ne (Join-Path ([IO.Path]::GetFullPath($Root)) 'out')) { throw 'Unexpected output directory' }
+if (Test-Path -LiteralPath $OutDir) { Remove-Item -LiteralPath $OutDir -Recurse -Force }
 New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
 Copy-Item "$Root\module.prop" "$OutDir\module.prop"
 

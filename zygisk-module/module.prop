@@ -1,7 +1,7 @@
 id=hyperos_ui_skipper
 name=HyperOS UI Skipper
-version=v1.0.7
-versionCode=107
+version=v1.0.8
+versionCode=108
 author=Hengen
 description=Removes artificial countdown or auto-confirms HyperOS/MIUI security dialogs. Managed via Module WebUI.
 updateJson=https://raw.githubusercontent.com/Hengen42/hyperos-ui-skipper/main/update.json
