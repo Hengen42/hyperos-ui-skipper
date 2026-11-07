@@ -32,6 +32,12 @@ if ($LASTEXITCODE) { throw 'aapt2 failed' }
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zip = [System.IO.Compression.ZipFile]::Open($unsigned, 'Update')
 [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, "$out\dex\classes.dex", 'classes.dex')
+# Preserve the scope metadata and empty marker in standalone builds too.
+$resourceRoot = Join-Path $root 'src/main/resources'
+Get-ChildItem -LiteralPath $resourceRoot -Recurse -File | ForEach-Object {
+    $entryName = $_.FullName.Substring($resourceRoot.Length + 1).Replace('\', '/')
+    [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $_.FullName, $entryName)
+}
 $zip.Dispose()
 
 $aligned = "$out\aligned.apk"

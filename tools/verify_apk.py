@@ -27,8 +27,24 @@ def defined_classes(data):
 def verify(path):
     with zipfile.ZipFile(path) as apk:
         names = apk.namelist()
-        if any(name.startswith('META-INF/xposed/') for name in names):
-            raise ValueError('Legacy Entry must not be declared as a modern Xposed module')
+        scope_files = {
+            'META-INF/xposed/java_init.list',
+            'META-INF/xposed/module.prop',
+            'META-INF/xposed/scope.list',
+        }
+        if {name for name in names if name.startswith('META-INF/xposed/') and not name.endswith('/')} != scope_files:
+            raise ValueError('Missing or unexpected scope metadata')
+        if apk.read('META-INF/xposed/java_init.list').strip():
+            raise ValueError('Modern entry list must stay empty; Entry uses the legacy loader')
+        properties = dict(
+            line.strip().split('=', 1)
+            for line in apk.read('META-INF/xposed/module.prop').decode().splitlines()
+            if line.strip() and not line.lstrip().startswith(('#', '!'))
+        )
+        if properties != {'minApiVersion': '93', 'targetApiVersion': '93', 'staticScope': 'true'}:
+            raise ValueError('Scope metadata must retain legacy API 93 and staticScope=true')
+        if apk.read('META-INF/xposed/scope.list').decode().split() != ['com.miui.securitycenter']:
+            raise ValueError('Scope must contain SecurityCenter only')
         if apk.read('assets/xposed_init').decode().strip() != 'dev.hengen.uiskipper.Entry':
             raise ValueError('Missing or incorrect legacy entry registration')
         classes = set()
@@ -39,7 +55,7 @@ def verify(path):
             raise ValueError('Entry class missing from DEX')
         if any(name.startswith('Lde/robv/android/xposed/') for name in classes):
             raise ValueError('Compile-time Xposed stubs were packaged in DEX')
-    print(f'PASS: legacy entry present; no modern metadata or Xposed stub definitions: {path}')
+    print(f'PASS: legacy entry, API 93, fixed SecurityCenter scope, no Xposed stub definitions: {path}')
 
 
 if __name__ == '__main__':

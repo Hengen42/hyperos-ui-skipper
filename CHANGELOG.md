@@ -1,6 +1,9 @@
 # Changelog
 
 ## 1.0.8
+- **Faster WebUI startup:** Render the interface before root checks, read the saved mode with the fast status response, and query framework activation and scope in parallel while preserving live hook verification.
+- **Fixed Vector scope:** Restrict the scope picker to SecurityCenter while retaining legacy API 93 loading. The modern entry list stays empty to avoid declaring the legacy entry as a modern module.
+- **Vector module description:** Preserve the module description in Vector's scope-metadata view as well as classic Xposed managers.
 - **Critical hook loading fix:** v1.0.6 introduced modern Xposed metadata with `targetApiVersion=102` while the entry class still used the legacy `IXposedHookLoadPackage` API. Vector blocks that API for modules targeting API 102, so the module could appear enabled with the correct scope while no hooks loaded. Removed the incompatible modern declarations and restored classic Xposed loading.
 - **Status accuracy:** Only report an active hook when a running SecurityCenter process has a matching hook success log; old logs no longer count as current injection proof.
 - **Automatic hook verification:** When needed, a full status check starts SecurityCenter silently through a read-only provider request and verifies the current process's hook log. Users no longer need to open SecurityCenter manually. Verification is bounded and does not run a background monitoring loop.

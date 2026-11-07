@@ -155,7 +155,7 @@
 
     <div class="option" id="opt_mode1">
       <label>
-        <input type="radio" name="mode" value="1">
+        <input type="radio" name="mode" value="1" disabled>
         <div>
           <div class="option-header">
             <span class="title" id="t_mode1_title">Skip Countdown Only</span>
@@ -168,7 +168,7 @@
 
     <div class="option" id="opt_mode2">
       <label>
-        <input type="radio" name="mode" value="2">
+        <input type="radio" name="mode" value="2" disabled>
         <div>
           <div class="option-header">
             <span class="title" id="t_mode2_title">Full Automatic</span>
@@ -396,12 +396,7 @@
   var consentRow = document.getElementById('consentRow');
   var consent = document.getElementById('consent');
   var activeModeVal = 1;
-
-  function currentMode() {
-    var raw = exec('settings get global hyperos_uiskipper_mode').trim();
-    var n = parseInt(raw, 10);
-    return (n === 1 || n === 2) ? n : 1;
-  }
+  var modeReady = false;
 
   function updateVisualSelection(mode) {
     activeModeVal = mode;
@@ -433,6 +428,7 @@
   }
 
   function selectOption(mode) {
+    if (!modeReady) return;
     if (mode === 1) {
       updateVisualSelection(1);
       commitMode(1);
@@ -545,10 +541,10 @@
     var activeDesc = (s.mode === '2') ? t('mode2_title') : t('mode1_title');
 
     document.getElementById('checks').innerHTML =
-      row(s.disabled !== '1', t('module_setting'), (s.disabled === '1' ? t('disabled') : t('active'))) +
-      row(s.vector_module === '1' && s.vector_daemon === '1', t('framework', { name: fwName }),
-          s.vector_module !== '1' ? t('not_installed') : (s.vector_daemon !== '1' ? t('daemon_stopped') : t('daemon_running'))) +
-      row(s.apk === '1', t('apk_name'), s.apk === '1' ? t('installed') : t('not_installed')) +
+      row(s.disabled === undefined ? null : s.disabled !== '1', t('module_setting'), s.disabled === undefined ? '' : (s.disabled === '1' ? t('disabled') : t('active'))) +
+      row(s.vector_module === undefined ? null : s.vector_module === '1' && s.vector_daemon === '1', t('framework', { name: fwName }),
+          s.vector_module === undefined ? '' : (s.vector_module !== '1' ? t('not_installed') : (s.vector_daemon !== '1' ? t('daemon_stopped') : t('daemon_running')))) +
+      row(pending(s.apk), t('apk_name'), s.apk === undefined ? '' : (s.apk === '1' ? t('installed') : t('not_installed'))) +
       row(pending(s.enabled), t('framework_enabled'),
           pending(s.enabled) === false ? t('framework_enabled_hint') : '') +
       row(pending(s.scope), t('scope_item'),
@@ -558,12 +554,28 @@
 
     document.getElementById('activate').style.display =
       (s.apk === '1' && (s.state === 'not_enabled' || s.state === 'no_scope')) ? 'block' : 'none';
-    document.getElementById('reinstall').style.display = (s.apk === '1' || !s.state) ? 'none' : 'block';
-    document.getElementById('info').textContent = t('active_mode') + activeDesc;
+    document.getElementById('reinstall').style.display = s.apk === '0' ? 'block' : 'none';
+    document.getElementById('info').textContent = s.mode ? t('active_mode') + activeDesc : t('checking_status');
   }
 
   var refreshing = false;
   var refreshBtn = document.getElementById('refresh');
+  function afterPaint(callback) {
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(function () { setTimeout(callback, 0); });
+    } else {
+      setTimeout(callback, 0);
+    }
+  }
+
+  function applyInitialMode(s) {
+    if (modeReady || (s.mode !== '1' && s.mode !== '2')) return;
+    updateVisualSelection(parseInt(s.mode, 10));
+    consent.checked = s.mode === '2';
+    modeReady = true;
+    radios.forEach(function (r) { r.disabled = false; });
+  }
+
   function refreshInfo() {
     if (refreshing) return;
     refreshing = true;
@@ -577,22 +589,26 @@
       banner.textContent = '❌ ' + why;
     };
 
-    run('sh ' + MODDIR + '/status.sh --fast; [ -f ' + MODDIR + '/disable ] && echo disabled=1', 10000, function (out, err) {
+    var disabledCommand = '; if [ -f ' + MODDIR + '/disable ]; then echo disabled=1; else echo disabled=0; fi';
+    run('sh ' + MODDIR + '/status.sh --fast' + disabledCommand, 10000, function (out, err) {
       var fast = parseStatus(out);
       if (!fast.state) { fail(err || 'status.sh empty output'); return; }
+      applyInitialMode(fast);
       render(fast, false);
 
-      run('sh ' + MODDIR + '/status.sh --prop; [ -f ' + MODDIR + '/disable ] && echo disabled=1', 50000, function (out2, err2) {
-        refreshing = false;
-        setButtonBusy(refreshBtn, false, null, t('btn_refresh'));
-        var full = parseStatus(out2);
-        if (!full.state) {
-          var banner = document.getElementById('banner');
-          banner.className = 'banner bad';
-          banner.textContent = '❌ ' + (err2 || 'status error');
-          return;
-        }
-        render(full, true);
+      afterPaint(function () {
+        run('sh ' + MODDIR + '/status.sh --prop' + disabledCommand, 50000, function (out2, err2) {
+          refreshing = false;
+          setButtonBusy(refreshBtn, false, null, t('btn_refresh'));
+          var full = parseStatus(out2);
+          if (!full.state) {
+            var banner = document.getElementById('banner');
+            banner.className = 'banner bad';
+            banner.textContent = '❌ ' + (err2 || 'status error');
+            return;
+          }
+          render(full, true);
+        });
       });
     });
   }
@@ -643,11 +659,10 @@
   });
 
   applyLanguage(currentLang);
-  var initMode = 1;
-  try { initMode = currentMode(); } catch (e) {}
-  updateVisualSelection(initMode);
-  if (initMode === 2) consent.checked = true;
-  refreshInfo();
+  render({ state: 'checking' }, false);
+  // Paint the page first. The fast status already includes the saved mode,
+  // so opening the WebUI needs no separate synchronous root settings read.
+  afterPaint(refreshInfo);
 </script>
 </body>
 </html>

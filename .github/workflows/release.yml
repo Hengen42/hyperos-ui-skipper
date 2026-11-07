@@ -8,6 +8,12 @@ on:
       - 'v*'
   workflow_dispatch:
 
+# Updating main and a release tag can trigger this workflow twice. Only the
+# latest run may replace the release asset.
+concurrency:
+  group: hyperos-ui-skipper-release
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build & Package Module
@@ -32,6 +38,9 @@ jobs:
       - name: Build Xposed Hook APK
         run: |
           gradle :xposed-module:assembleRelease --stacktrace
+
+      - name: Check WebUI startup behavior
+        run: node --test tools/test_webui_startup.cjs
 
       - name: Verify packaged Xposed entry point
         run: python3 tools/verify_apk.py xposed-module/build/outputs/apk/release/xposed-module-release.apk

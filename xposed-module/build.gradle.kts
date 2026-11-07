@@ -29,8 +29,9 @@ android {
     sourceSets {
         getByName("main") {
             java.srcDirs("src/main/java", "stubs")
-            // Entry implements the legacy IXposedHookLoadPackage API. Do not
-            // declare it in META-INF/xposed: API 102 hides the legacy classes.
+            // Vector reads staticScope through this metadata. Keep target API
+            // 93 and java_init.list EMPTY so Entry still uses the legacy loader.
+            resources.srcDirs("src/main/resources")
         }
     }
 

@@ -35,10 +35,7 @@ apk=0
 pm path "$PKG" 2>/dev/null | grep -q '^package:' && apk=1
 
 # Framework CLI is a Java process. Skipped with --fast for instant UI response.
-xcli() {
-  if [ -z "$cli_path" ] || [ ! -f "$cli_path" ]; then
-    return 1
-  fi
+prepare_cli_environment() {
   # Borrow complete Android runtime env from zygote if missing
   if [ -z "$BOOTCLASSPATH" ] || [ -z "$ANDROID_I18N_ROOT" ]; then
     ZPID=$(pidof zygote64 zygote | cut -d' ' -f1)
@@ -58,8 +55,9 @@ xcli() {
     export ANDROID_ART_ROOT="/apex/com.android.art"
     export BOOTCLASSPATH="/apex/com.android.art/javalib/core-oj.jar:/apex/com.android.art/javalib/core-libart.jar:/apex/com.android.art/javalib/okhttp.jar:/apex/com.android.art/javalib/bouncycastle.jar:/apex/com.android.art/javalib/apache-xml.jar:/system/framework/framework.jar:/system/framework/framework-graphics.jar:/system/framework/ext.jar:/system/framework/telephony-common.jar:/system/framework/voip-common.jar:/system/framework/ims-common.jar"
   fi
-  timeout 15 sh "$cli_path" "$@" 2>/dev/null
 }
+
+xcli() { timeout 15 sh "$cli_path" "$@" 2>/dev/null; }
 
 enabled=unknown
 scope=unknown
@@ -67,10 +65,19 @@ hook=unknown
 if [ "$1" != "--fast" ] && [ "$framework_daemon" = 1 ] && [ "$apk" = 1 ]; then
   enabled=0
   scope=0
-  if [ -n "$cli_path" ]; then
-    xcli modules ls | grep -F "$PKG" | grep -q ' enabled' && enabled=1
+  if [ -n "$cli_path" ] && [ -f "$cli_path" ]; then
+    prepare_cli_environment
+    # Independent read-only queries: two bounded workers, no temporary files
+    # or resident watcher. Preparing the Java environment once also avoids
+    # repeating it in each pipeline's subshell.
+    cli_results=$(
+      (xcli modules ls | grep -F "$PKG" | grep -q ' enabled' && echo enabled=1) &
+      (xcli scope ls "$PKG" | grep -Fq "$TARGET" && echo scope=1) &
+      wait
+    )
+    case "$cli_results" in *enabled=1*) enabled=1 ;; esac
     if [ "$enabled" = 1 ]; then
-      xcli scope ls "$PKG" | grep -q "$TARGET" && scope=1
+      case "$cli_results" in *scope=1*) scope=1 ;; esac
     fi
   fi
 fi

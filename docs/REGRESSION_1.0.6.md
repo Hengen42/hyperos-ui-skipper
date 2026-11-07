@@ -82,3 +82,45 @@ On the connected device, with SecurityCenter initially stopped:
 
 The previous manual-open instructions were removed from both languages
 and the module action output. Version remains v1.0.8 / 108.
+
+## Follow-up: Vector scope lock and description
+
+The published v1.0.8 restored loading but its classic scope recommendation
+did not restrict the manager's picker. A subsequent device experiment on
+Vector 3112 verified a fixed SecurityCenter-only picker with API 93 scope
+metadata and an EMPTY modern Java entry marker. The user confirmed that
+only SecurityCenter is listed, and fresh-process hook registration remained
+successful. The legacy `assets/xposed_init` entry remains the runtime entry.
+This is scope metadata, not a modern API port. Other framework versions
+have not been device-tested with this follow-up.
+
+Vector reads `ApplicationInfo.loadDescription` in this metadata view, so
+the manifest now declares `android:description`. Classic
+`xposeddescription` references the same string resource. Gradle release
+build/lint and current-process hook checks pass with this description fix.
+The packaging checker requires the API 93/empty-marker/single-target
+combination and rejects API 102, a nonempty modern entry, and extra targets.
+
+These follow-up changes are included in the republished v1.0.8 package.
+Version code remains 108; existing installations need to reinstall the
+updated ZIP because the version number has not increased.
+
+## Follow-up: WebUI startup
+
+Startup no longer performs a separate synchronous settings read. The page
+paints before the fast status request, uses that response to initialize the
+saved mode, and paints again before starting full verification. Mode controls
+remain disabled until their real value is known; pending checks do not appear
+as failures or as verified success. Activation and scope queries now run as
+two bounded read-only workers with a shared prepared Java environment.
+
+On-device alternating warm checks completed in 1.27/0.72/1.04 seconds for the
+previous script and 0.53/0.51/0.75 seconds for the optimized script. An initial
+pre-change full check took 2.98 seconds; the fast check took 0.09 seconds.
+These are shell status timings, not end-to-end KernelSU WebView launch times.
+The host application's WebView startup time is outside this page's control.
+
+Three dependency-free Node tests cover first paint before root work, saved
+Mode 2 availability before full verification, and safe failures. Live target
+hook verification still succeeds, and the missing-log test still fails safely.
+No persistent monitor or cached healthy result was introduced.

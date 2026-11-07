@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="module_description">Removes the 5/10 s wait on HyperOS SecurityCenter danger confirmation screens.</string>
+</resources>
