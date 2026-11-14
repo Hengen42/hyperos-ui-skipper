@@ -54,6 +54,17 @@ function page() {
   };
 }
 
+test('waiting for unlock or an absent target is neutral and never claims injection', () => {
+  const p = page();
+  for (const state of ['waiting_unlock', 'waiting_target']) {
+    p.context.render({ state, hook: 'unknown' }, true);
+    assert.equal(p.element('banner').className, 'banner ');
+    assert.match(p.element('banner').textContent, /^⏳ /u);
+    assert.doesNotMatch(p.element('banner').textContent, /[✅❌]/u);
+    assert.doesNotMatch(p.element('banner').textContent, /waiting_/);
+  }
+});
+
 test('first paint does no root work and makes no unverified health claims', () => {
   const p = page();
   assert.equal(p.calls.length, 0);

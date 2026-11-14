@@ -67,7 +67,7 @@ fi
 # Make the module active immediately
 LIVE=/data/adb/modules/hyperos_ui_skipper
 mkdir -p "$LIVE" && cp -af "$MODPATH"/. "$LIVE"/ && {
-  sh "$LIVE/status.sh" --prop >/dev/null 2>&1
+  sh "$LIVE/status.sh" --retry-prop >/dev/null 2>&1
   ui_print "- Module is ready to use immediately."
 }
 ui_print "- You can customize behavior anytime via the Module WebUI."

@@ -39,8 +39,8 @@ jobs:
         run: |
           gradle :xposed-module:assembleRelease --stacktrace
 
-      - name: Check WebUI startup behavior
-        run: node --test tools/test_webui_startup.cjs
+      - name: Check boot status and WebUI startup behavior
+        run: node --test tools/test_boot_status.cjs tools/test_webui_startup.cjs
 
       - name: Verify packaged Xposed entry point
         run: python3 tools/verify_apk.py xposed-module/build/outputs/apk/release/xposed-module-release.apk

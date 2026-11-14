@@ -220,6 +220,8 @@
       not_enabled: 'Module needs approval in Vector/LSPosed — enable it and reboot',
       no_scope: 'Scope missing — com.miui.securitycenter must be selected in framework',
       no_hook: 'Automatic hook verification failed — try restarting the device',
+      waiting_unlock: 'Unlock device, then refresh to verify the hook',
+      waiting_target: 'SecurityCenter is not running — hook not yet verified',
       saved_toast: 'Applied: {mode}. Security Center (com.miui.securitycenter) restarted.',
       restarted_toast: 'Security Center (com.miui.securitycenter) restarted',
       module_setting: 'Configuration Module',
@@ -274,6 +276,8 @@
       not_enabled: 'Modül çerçevede onay bekliyor — etkinleştirip yeniden başlatın',
       no_scope: 'Kapsam eksik — çerçevede com.miui.securitycenter seçilmeli',
       no_hook: 'Otomatik kanca doğrulaması başarısız — cihazı yeniden başlatmayı deneyin',
+      waiting_unlock: 'Cihazın kilidini açıp kancayı doğrulamak için yenileyin',
+      waiting_target: 'Güvenlik Merkezi çalışmıyor — kanca henüz doğrulanmadı',
       saved_toast: 'Uygulandı: {mode}. Güvenlik Merkezi (com.miui.securitycenter) yeniden başlatıldı.',
       restarted_toast: 'Güvenlik Merkezi (com.miui.securitycenter) yeniden başlatıldı',
       module_setting: 'Ayar Modülü',
@@ -530,10 +534,11 @@
     var banner = document.getElementById('banner');
     var ok = s.state === 'ok';
     var checking = !complete || s.state === 'checking';
-    banner.className = 'banner ' + (checking ? '' : (ok ? 'ok' : 'bad'));
+    var waiting = s.state === 'waiting_unlock' || s.state === 'waiting_target';
+    banner.className = 'banner ' + (checking || waiting ? '' : (ok ? 'ok' : 'bad'));
     
     var bannerMsg = checking ? t('checking_status') : (t(s.state) || s.state);
-    banner.textContent = (checking ? '⏳ ' : (ok ? '✅ ' : '❌ ')) + bannerMsg;
+    banner.textContent = (checking || waiting ? '⏳ ' : (ok ? '✅ ' : '❌ ')) + bannerMsg;
 
     var fwName = s.framework_name && s.framework_name !== 'None' ? s.framework_name : 'Vector / LSPosed';
     var pending = function (v) { return v === 'unknown' || v === undefined ? null : v === '1'; };

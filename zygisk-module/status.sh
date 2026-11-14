@@ -5,6 +5,26 @@ MODDIR=/data/adb/modules/hyperos_ui_skipper
 PKG=dev.hengen.uiskipper
 TARGET=com.miui.securitycenter
 
+# Boot/install can probe before SecurityCenter injection/logging is ready.
+# Reconcile an early no_hook without requiring WebUI to refresh module.prop.
+# Keep interactive --prop bounded to one probe, and never invent hook success.
+if [ "$1" = "--retry-prop" ]; then
+  attempt=0
+  STATUS=""
+  while [ "$attempt" -lt 3 ]; do
+    if [ -f "$MODDIR/disable" ] || [ -f "$MODDIR/remove" ]; then break; fi
+    STATUS=$(sh "${0%/*}/status.sh" --prop 2>/dev/null)
+    attempt=$((attempt + 1))
+    case "$STATUS" in
+      *state=no_hook*) ;;
+      *) break ;;
+    esac
+    [ "$attempt" -lt 3 ] && sleep 1
+  done
+  [ -n "$STATUS" ] && echo "$STATUS"
+  exit 0
+fi
+
 framework_name="None"
 cli_path=""
 if [ -d /data/adb/modules/zygisk_vector ] && [ ! -f /data/adb/modules/zygisk_vector/disable ] && [ ! -f /data/adb/modules/zygisk_vector/remove ]; then
@@ -96,10 +116,16 @@ check_hook() {
   return 1
 }
 
+hook_wait=""
 if [ "$enabled" = 1 ] && [ "$scope" = 1 ]; then
   hook=0
   if check_hook; then
     hook=1
+  elif [ "$(cmd activity get-started-user-state 0 2>/dev/null)" = RUNNING_LOCKED ]; then
+    # sys.boot_completed can be 1 before credential-encrypted app data opens.
+    # A provider that cannot start yet is not evidence of failed injection.
+    hook=unknown
+    hook_wait=waiting_unlock
   elif [ ! -f "$MODDIR/disable" ] && [ ! -f "$MODDIR/remove" ]; then
     # Acquiring the Settings search provider starts the main SecurityCenter
     # process without opening an Activity or changing any permission/settings.
@@ -107,8 +133,9 @@ if [ "$enabled" = 1 ] && [ "$scope" = 1 ]; then
     timeout 5 content gettype --uri "content://$TARGET.provider.SecSettingsSearchProvider" --user 0 >/dev/null 2>&1
 
     # One bounded check per full refresh/boot/install; never a resident watcher.
+    # Do not wait for injection into a process that never started or exited.
     hook_attempt=0
-    while [ "$hook_attempt" -lt 5 ]; do
+    while [ "$hook_attempt" -lt 5 ] && pidof "$TARGET" >/dev/null 2>&1; do
       if check_hook; then
         hook=1
         break
@@ -116,6 +143,10 @@ if [ "$enabled" = 1 ] && [ "$scope" = 1 ]; then
       hook_attempt=$((hook_attempt + 1))
       [ "$hook_attempt" -lt 5 ] && sleep 1
     done
+    if [ "$hook" != 1 ] && ! pidof "$TARGET" >/dev/null 2>&1; then
+      hook=unknown
+      hook_wait=waiting_target
+    fi
   fi
 fi
 
@@ -148,6 +179,12 @@ elif [ "$enabled" != 1 ]; then
 elif [ "$scope" != 1 ]; then
   state=no_scope
   msg="❌ Target scope missing — select $TARGET in $framework_name."
+elif [ "$hook_wait" = waiting_unlock ]; then
+  state=waiting_unlock
+  msg="⏳ Unlock device, then refresh to verify the hook."
+elif [ "$hook_wait" = waiting_target ]; then
+  state=waiting_target
+  msg="⏳ SecurityCenter is not running — hook not yet verified."
 elif [ "$hook" != 1 ]; then
   state=no_hook
   msg="❌ Automatic hook verification failed — restart the device."

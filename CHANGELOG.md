@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.9
+- **Accurate boot status:** A device awaiting its first unlock now shows a pending state instead of a false hook failure. An absent SecurityCenter process is also reported as pending, without claiming successful injection.
+- **Automatic refresh after unlock:** The boot service waits using a lightweight user-state query every five seconds while locked, performs a bounded health refresh after unlock, then exits. It stops when the module is disabled or removed and leaves no persistent health watcher.
+- **Bounded recovery:** Boot and installation retry only a verified `no_hook` result, up to three probes separated by one second. Removed the unconditional five-second boot delay.
+- **Validation:** Boot-status and WebUI regression checks run in release CI. A real-device reboot confirmed that unlocking alone updates the module to Active (Vector), backed by a hook-success log for the currently running SecurityCenter process, without opening WebUI or manually refreshing status.
+
 ## 1.0.8
 - **Faster WebUI startup:** Render the interface before root checks, read the saved mode with the fast status response, and query framework activation and scope in parallel while preserving live hook verification.
 - **Fixed Vector scope:** Restrict the scope picker to SecurityCenter while retaining legacy API 93 loading. The modern entry list stays empty to avoid declaring the legacy entry as a modern module.
